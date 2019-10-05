@@ -1,0 +1,9 @@
+\begin{lstlisting}r[\href{https://godbolt.org/z/7UaJc8}{\texttt{godbolt.org/z/7UaJc8}}]
+void side_effect();
+
+int f(const int &x) {
+    auto a = x;
+    side_effect();
+    return a - x;
+}
+\end{lstlisting}\n
