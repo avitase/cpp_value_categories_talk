@@ -11,7 +11,7 @@ venv/bin/activate: requirements.txt
 	. venv/bin/activate; pip install -Ur requirements.txt
 	touch venv/bin/activate
 
-snippet%_lst.tex: snippet%.cpp venv
+snippet%_lst.tex: snippet%.cpp venv convert.py
 	. venv/bin/activate; python convert.py $<
 
 clean:
