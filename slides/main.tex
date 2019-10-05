@@ -1,0 +1,74 @@
+\documentclass[compress,aspectratio=1610]{beamer}
+
+\usepackage[english]{babel}
+\usepackage[english]{isodate}
+\isodate
+\usepackage{multicol}
+
+\usetheme{vertex}
+
+\linespread{1.1}
+
+\usepackage{listings}
+\lstdefinestyle{cppstyle}{
+language=C++,
+basicstyle=\scriptsize\ttfamily,
+numbers=left,
+stringstyle=\ttfamily\color{vertexDarkRed},
+commentstyle=\itshape\color{vertexDarkBlue},
+captionpos={b}
+}
+\lstset{style=cppstyle}
+
+\usepackage{fontspec}
+\setmonofont{Hack}
+
+\title{Handedness in C++}
+\subtitle{aka Value Categories}
+\institute{iCSC 2019}
+\author{Nis Meinert}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{foo}
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\end{frame}
+
+\begin{frame}[fragile]{foo}
+    \begin{lstlisting}[title=\href{https://godbolt.org/z/Zn3yoq}{\texttt{godbolt.org/z/Zn3yoq}}]
+#include <cstdlib>
+#include <iostream>
+
+int main() {
+    // print 'Hello world!'
+    std::cout << "Hello world!\n";
+    return EXIT_SUCCESS;
+}
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{palim}
+    \begin{lstlisting}[title=\href{https://godbolt.org/z/Zn3yoq}{\texttt{godbolt.org/z/Zn3yoq}}]
+struct A {
+  int x;
+  A(int x, int y = 0) : x(x + y) {}
+};
+
+struct B : A {
+  explicit B(int x, int y = 0) : A(x, y) {}
+};
+
+template <typename T>
+T init() {
+  return 42;
+}
+
+int main() {
+  auto x = init<A>().x;
+  // auto y = init<B>().x;
+}
+    \end{lstlisting}
+\end{frame}
+\end{document}
