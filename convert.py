@@ -85,9 +85,9 @@ def make_listing(*, source, url):
     title = url.lstrip('http://').lstrip('https://').lstrip('www.')
 
     tex = r'\begin{lstlisting}'
-    tex += 'r[\href{' + url + r'}{\texttt{' + title + '}}]\n'
+    tex += r'[title=\href{' + url + r'}{\texttt{' + title + '}}]\n'
     tex += source
-    tex += r'\end{lstlisting}\n'
+    tex += r'\end{lstlisting}' + '\n'
     return tex
 
 
