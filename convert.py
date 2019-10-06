@@ -25,7 +25,7 @@ def read_source(file_name):
 def compile(source, flags=None):
     compiler = 'clang_trunk'
     if flags is None:
-        flags = '-O3'
+        flags = '-std=c++2a -O3'
 
     filters = {
         'binary': False,
@@ -64,7 +64,7 @@ def compile(source, flags=None):
 def upload(source, flags=None):
     compiler = 'clang_trunk'
     if flags is None:
-        flags = '-O3'
+        flags = '-std=c++2a -O3'
 
     compiler = {'id': compiler, 'options': flags, }
     data = {
