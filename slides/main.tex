@@ -16,9 +16,12 @@ basicstyle=\scriptsize\ttfamily,
 numbers=left,
 stringstyle=\ttfamily\color{vertexDarkRed},
 commentstyle=\itshape\color{vertexDarkBlue},
-captionpos={b}
+captionpos={b},
+frame=single
 }
 \lstset{style=cppstyle}
+\lstset{inputpath=../snippets}
+\newcommand{\inputlisting}[1]{\input{../snippets/#1_lst.tex}}
 
 \usepackage{fontspec}
 \setmonofont{Hack}
@@ -36,39 +39,19 @@ captionpos={b}
     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 \end{frame}
 
-\begin{frame}[fragile]{foo}
-    \begin{lstlisting}[title=\href{https://godbolt.org/z/Zn3yoq}{\texttt{godbolt.org/z/Zn3yoq}}]
-#include <cstdlib>
-#include <iostream>
-
-int main() {
-    // print 'Hello world!'
-    std::cout << "Hello world!\n";
-    return EXIT_SUCCESS;
-}
-    \end{lstlisting}
+\begin{frame}[fragile]
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputlisting{snippet1}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={[x86masm]Assembler}]{snippet1.asm}
+        \end{column}
+    \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{palim}
-    \begin{lstlisting}[title=\href{https://godbolt.org/z/Zn3yoq}{\texttt{godbolt.org/z/Zn3yoq}}]
-struct A {
-  int x;
-  A(int x, int y = 0) : x(x + y) {}
-};
-
-struct B : A {
-  explicit B(int x, int y = 0) : A(x, y) {}
-};
-
-template <typename T>
-T init() {
-  return 42;
-}
-
-int main() {
-  auto x = init<A>().x;
-  // auto y = init<B>().x;
-}
-    \end{lstlisting}
+\begin{frame}[fragile]
+    \inputlisting{snippet2}
 \end{frame}
+
 \end{document}

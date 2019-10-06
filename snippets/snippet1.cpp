@@ -5,3 +5,9 @@ int f(int x) {
     side_effect();
     return a - x;
 }
+
+int g(const int &x) {
+    auto a = x;
+    side_effect();
+    return a - x;
+}

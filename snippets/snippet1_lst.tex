@@ -1,4 +1,4 @@
-\begin{lstlisting}r[\href{https://godbolt.org/z/vynRnX}{\texttt{godbolt.org/z/vynRnX}}]
+\begin{lstlisting}[title=\href{https://godbolt.org/z/Z6j5uI}{\texttt{godbolt.org/z/Z6j5uI}}]
 void side_effect();
 
 int f(int x) {
@@ -6,4 +6,10 @@ int f(int x) {
     side_effect();
     return a - x;
 }
-\end{lstlisting}\n
+
+int g(const int &x) {
+    auto a = x;
+    side_effect();
+    return a - x;
+}
+\end{lstlisting}

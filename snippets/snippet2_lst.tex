@@ -1,9 +1,20 @@
-\begin{lstlisting}r[\href{https://godbolt.org/z/7UaJc8}{\texttt{godbolt.org/z/7UaJc8}}]
-void side_effect();
+\begin{lstlisting}[title=\href{https://godbolt.org/z/ZQvICq}{\texttt{godbolt.org/z/ZQvICq}}]
+struct A {
+  int x;
+  A(int x, int y = 0) : x(x + y) {}
+};
 
-int f(const int &x) {
-    auto a = x;
-    side_effect();
-    return a - x;
+struct B : A {
+  explicit B(int x, int y = 0) : A(x, y) {}
+};
+
+template <typename T>
+T init() {
+  return 42;
 }
-\end{lstlisting}\n
+
+int main() {
+  auto x = init<A>().x;
+  auto y = init<B>().x; // error: no viable conversion from int to return type 'B'
+}
+\end{lstlisting}
