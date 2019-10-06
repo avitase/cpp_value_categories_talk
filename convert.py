@@ -36,7 +36,7 @@ def compile(source, flags=None):
         'intel': True,
         'labels': True,
         'libraryCode': False,
-        'trim': False,
+        'trim': True,
     }
 
     data = {
