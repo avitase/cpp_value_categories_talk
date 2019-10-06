@@ -22,7 +22,7 @@ def read_source(file_name):
     return ''.join(lines)
 
 
-def compile(source, flags=None):
+def compile(source, flags=None, hide_flags=None):
     compiler = 'clang_trunk'
     if flags is None:
         flags = '-std=c++2a -O3'
@@ -58,7 +58,7 @@ def compile(source, flags=None):
         if lines and lines[0].strip().startswith('# Compilation provided by'):
             lines = lines[1:]
 
-        info = f'# {compiler} {flags}'
+        info = f'# {compiler} ' + ' '.join(f for f in flags.split(' ') if f not in hide_flags)
         return '\n'.join([info,] + [line.rstrip() for line in lines])
     return None
 
@@ -103,13 +103,16 @@ if __name__ == '__main__':
     source = read_source(file_name)
     require(source, f'File \'{file_name}\' is empty!')
 
-    asm = compile(source=source)
+    flags = '-O3 -std=c++2a -march=haswell'
+    hide_flags = '-std=c++2a -march=haswell'
+
+    asm = compile(source=source, flags=flags, hide_flags=hide_flags)
     if asm:
         open(root + '.asm', 'w').write(asm)
     else:
         print('Error: Could not receive compilation result from godbold.org!')
 
-    url = upload(source=source)
+    url = upload(source=source, flags=flags)
     if not url:
         print('Error: Could not receive URL from godbold.org!')
         url = '???'
