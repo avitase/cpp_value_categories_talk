@@ -16,7 +16,7 @@ snippet%_lst.tex: snippet%.cpp venv convert.py
 
 slides/build/main.pdf: $(shell find slides -name '*.tex') $(SNIPPETS)
 	cd slides && mkdir -p build && \
-	latexmk -pdflatex=lualatex -pdf -jobname=build/main main.tex
+	latexmk -halt-on-error -pdflatex=lualatex -pdf -jobname=build/main main.tex
 
 clean:
 	rm -rf venv
