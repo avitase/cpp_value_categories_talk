@@ -20,6 +20,7 @@ captionpos={b},
 frame=single
 }
 \lstset{style=cppstyle}
+\lstset{morekeywords={decltype,final}}
 \lstset{inputpath=../snippets}
 \newcommand{\inputlisting}[1]{\input{../snippets/#1_lst.tex}}
 
@@ -83,6 +84,10 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
 
 \begin{frame}[fragile]
     \inputlisting{snippet2}
+\end{frame}
+
+\begin{frame}[fragile]
+    \inputlisting{snippet3}
 \end{frame}
 
 \end{document}
