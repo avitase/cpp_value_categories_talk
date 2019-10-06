@@ -1,4 +1,4 @@
-# clang_trunk -std=c++2a -O3
+# clang_trunk -O3
 <Compilation failed>
 # Compiler exited with result code 1
 Standard error:

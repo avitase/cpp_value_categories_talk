@@ -35,8 +35,39 @@ frame=single
 
 \maketitle
 
-\begin{frame}{foo}
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\begin{frame}[fragile]{x86-64 Assembly}
+    \begin{lstlisting}[language={[x86masm]Assembler}]
+instr
+instr dest_operand
+instr dest_operand, source_operand
+instr dest_operand, source_operand, source_operand
+    \end{lstlisting}
+
+    \begin{lstlisting}[language={[x86masm]Assembler}]
+ret                        ; return
+inc rax                    ; increment "rax" by one
+mov edx, 1234              ; set "edx" to the value 1234
+add rsi, rdi               ; "rsi" += "rdi"
+vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}{Registers (on Linux)}
+    Special purpose:
+    \begin{itemize}
+        \item return value: \texttt{rax} (64-bit) [\texttt{eax} (32-bit), \texttt{ax} (16-bit), \ldots]
+        \item 1st param: \texttt{rdi} (64-bit) [\texttt{edi} (32-bit)]
+        \item 2nd param: \texttt{rsi} (64-bit) [\texttt{esi} (32-bit)]
+        \item 3rd param: \texttt{rdx} (64-bit) [\texttt{edx} (32-bit)]
+        \item \ldots
+    \end{itemize}
+
+    Others:
+    \begin{itemize}
+        \item \texttt{rbx}, \texttt{rcx}, \texttt{rbp}, \texttt{r8-r14}, \texttt{rsp}
+        \item \texttt{xmm0-15}
+        \item \ldots
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]

@@ -1,4 +1,4 @@
-# clang_trunk -std=c++2a -O3
+# clang_trunk -O3
 f(int): # @f(int)
   push rax
   call side_effect()
