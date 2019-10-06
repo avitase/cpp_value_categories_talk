@@ -57,7 +57,9 @@ def compile(source, flags=None):
         lines = asm.split('\n')
         if lines and lines[0].strip().startswith('# Compilation provided by'):
             lines = lines[1:]
-        return '\n'.join(line.rstrip() for line in lines)
+
+        info = f'# {compiler} {flags}'
+        return '\n'.join([info,] + [line.rstrip() for line in lines])
     return None
 
 
