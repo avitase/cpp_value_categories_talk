@@ -26,6 +26,8 @@ def compile(source, flags=None, hide_flags=None):
     compiler = 'clang_trunk'
     if flags is None:
         flags = '-std=c++2a -O3'
+    if hide_flags is None:
+        hide_flags = ''
 
     filters = {
         'binary': False,
@@ -68,9 +70,16 @@ def upload(source, flags=None):
     if flags is None:
         flags = '-std=c++2a -O3'
 
-    compiler = {'id': compiler, 'options': flags, }
+    compiler_cfg = {'id': compiler, 'options': flags, }
+    executor_cfg = {'compiler': compiler_cfg, }
     data = {
-        'sessions': [{'id': 1, 'language': 'c++', 'source': source, 'compilers': [compiler, ]}, ]
+        'sessions': [{
+            'id': 1,
+            'language': 'c++',
+            'source': source,
+            'compilers': [compiler_cfg, ],
+            'executors': [executor_cfg, ],
+        }, ],
     }
 
     url = 'https://godbolt.org/shortener'
@@ -103,8 +112,13 @@ if __name__ == '__main__':
     source = read_source(file_name)
     require(source, f'File \'{file_name}\' is empty!')
 
-    flags = '-O3 -std=c++2a -march=haswell'
-    hide_flags = '-std=c++2a -march=haswell'
+    first_line = source.split('\n')[0]
+    if first_line.startswith('//'):
+        flags = first_line.lstrip('//').strip()
+        hide_flags = None
+    else:
+        flags = '-O3 -std=c++2a -march=haswell'
+        hide_flags = '-std=c++2a -march=haswell'
 
     asm = compile(source=source, flags=flags, hide_flags=hide_flags)
     if asm:
