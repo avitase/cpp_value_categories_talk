@@ -86,8 +86,18 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
     \inputlisting{snippet2}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile]{Does this code bother anyone?}
     \inputlisting{snippet3}
+\end{frame}
+
+\begin{frame}[fragile]{Does this code bother anyone?}
+    \inputlisting{snippet4}
+\end{frame}
+
+\begin{frame}{Guaranteed Copy Elision}
+    \begin{itemize}
+        \item It only accidentally work because of the guaranteed copy elision
+    \end{itemize}
 \end{frame}
 
 \end{document}
