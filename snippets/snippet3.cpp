@@ -13,6 +13,6 @@ template <typename ...Ts>
 auto pack(Ts &&... t) {
     Data<std::common_type_t<Ts...>> d(sizeof...(Ts));
     auto p = d.data;
-    ((*p++ = std::forward<std::decay_t<decltype(t)>>(t)),...);
+    ((*p++ = std::forward<decltype(t)>(t)),...);
     return d;
 }

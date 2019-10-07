@@ -1,2 +1,2 @@
-# clang_trunk -O3
+# g92 -O3
 

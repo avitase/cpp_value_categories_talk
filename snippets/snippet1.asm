@@ -1,21 +1,20 @@
-# clang_trunk -O3
-f(int): # @f(int)
-  push rax
+# g92 -O3
+f(int):
+  sub rsp, 8
   call side_effect()
   xor eax, eax
-  pop rcx
+  add rsp, 8
   ret
-g(int const&): # @g(int const&)
+g(int const&):
   push rbp
   push rbx
-  push rax
   mov rbx, rdi
-  mov ebp, dword ptr [rdi]
+  sub rsp, 8
+  mov ebp, DWORD PTR [rdi]
   call side_effect()
-  sub ebp, dword ptr [rbx]
   mov eax, ebp
+  sub eax, DWORD PTR [rbx]
   add rsp, 8
   pop rbx
   pop rbp
   ret
-

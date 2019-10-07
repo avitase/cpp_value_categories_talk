@@ -4,6 +4,8 @@
 \usepackage[english]{isodate}
 \isodate
 \usepackage{multicol}
+\usepackage{csquotes}
+\usepackage{soul}
 
 \usetheme{vertex}
 
@@ -90,14 +92,46 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
     \inputlisting{snippet3}
 \end{frame}
 
-\begin{frame}[fragile]{Does this code bother anyone?}
-    \inputlisting{snippet4}
-\end{frame}
-
 \begin{frame}{Guaranteed Copy Elision}
     \begin{itemize}
-        \item It only accidentally work because of the guaranteed copy elision
+        \item It only works because of the \st{guaranteed} accidentally copy elision in GCC (leak in clang)
     \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the following program?}
+    \inputlisting{snippet4a}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{ac}, \texttt{acc}, \texttt{acc}}
+    \inputlisting{snippet4a}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the following program?}
+    \inputlisting{snippet4b}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{a}, \texttt{a}, \texttt{a}}
+    \inputlisting{snippet4b}
+\end{frame}
+
+\begin{frame}{Copy Elision}
+    \begin{columns}
+        \begin{column}{.45\textwidth}
+            \inputlisting{snippet4c}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            Mandatory elision of copy/move operations since \texttt{C++17}):
+            \begin{itemize}
+                \item Return statement: when operand is a \texttt{prvalue} of same class type as return type
+                \item Initialization of a variable: when initializer expression is a \texttt{prvalue} of same class type as the variable type
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \ldots even if the copy/move constructor and the destructor have observable side-effects!
+    \vspace{.5cm}
+
+    \centering
+    \scalebox{1.5}{\textbf{Rule of thumb: avoid naming return values}}
 \end{frame}
 
 \end{document}

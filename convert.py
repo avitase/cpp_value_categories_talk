@@ -5,6 +5,9 @@ import sys
 import requests
 
 
+COMPILER = 'g92'
+
+
 def require(p, error_msg):
     if not p:
         print(f'Error: {error_msg}')
@@ -23,7 +26,7 @@ def read_source(file_name):
 
 
 def compile(source, flags=None, hide_flags=None):
-    compiler = 'clang_trunk'
+    compiler = COMPILER
     if flags is None:
         flags = '-std=c++2a -O3'
     if hide_flags is None:
@@ -66,11 +69,10 @@ def compile(source, flags=None, hide_flags=None):
 
 
 def upload(source, flags=None):
-    compiler = 'clang_trunk'
     if flags is None:
         flags = '-std=c++2a -O3'
 
-    compiler_cfg = {'id': compiler, 'options': flags, }
+    compiler_cfg = {'id': COMPILER, 'options': flags, }
     executor_cfg = {'compiler': compiler_cfg, }
     data = {
         'sessions': [{
@@ -94,6 +96,7 @@ def upload(source, flags=None):
 
 def make_listing(*, source, url):
     title = url.lstrip('http://').lstrip('https://').lstrip('www.')
+    title = title.replace('_', r'\_')
 
     tex = r'\begin{lstlisting}'
     tex += r'[title=\href{' + url + r'}{\texttt{' + title + '}}]\n'

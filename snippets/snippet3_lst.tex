@@ -1,4 +1,4 @@
-\begin{lstlisting}[title=\href{https://godbolt.org/z/AuTYzP}{\texttt{godbolt.org/z/AuTYzP}}]
+\begin{lstlisting}[title=\href{https://godbolt.org/z/x6Pc4O}{\texttt{godbolt.org/z/x6Pc4O}}]
 #include <cstddef>
 #include <type_traits>
 #include <utility>
@@ -14,7 +14,7 @@ template <typename ...Ts>
 auto pack(Ts &&... t) {
     Data<std::common_type_t<Ts...>> d(sizeof...(Ts));
     auto p = d.data;
-    ((*p++ = std::forward<std::decay_t<decltype(t)>>(t)),...);
+    ((*p++ = std::forward<decltype(t)>(t)),...);
     return d;
 }
 \end{lstlisting}
