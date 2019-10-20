@@ -25,6 +25,14 @@ def read_source(file_name):
     return ''.join(lines)
 
 
+def truncate_source(source, max_lines=20):
+    lines = source.split('\n')
+    if len(lines) > 21:
+        lines = lines[:19]
+        lines.append('[...]\n')
+    return '\n'.join(lines)
+
+
 def compile(source, flags=None, hide_flags=None):
     compiler = COMPILER
     if flags is None:
@@ -125,6 +133,7 @@ if __name__ == '__main__':
 
     asm = compile(source=source, flags=flags, hide_flags=hide_flags)
     if asm:
+        asm = truncate_source(asm)
         open(root + '.asm', 'w').write(asm)
     else:
         print('Error: Could not receive compilation result from godbold.org!')
@@ -135,4 +144,5 @@ if __name__ == '__main__':
         url = '???'
 
     with open(root + '_lst.tex', 'w') as f:
+        source = truncate_source(source)
         f.write(make_listing(source=source, url=url))
