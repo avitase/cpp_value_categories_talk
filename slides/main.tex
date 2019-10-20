@@ -7,9 +7,11 @@
 \usepackage{csquotes}
 \usepackage{soul}
 
+\usepackage{fancyvrb}
+
 \usetheme{vertex}
 
-\linespread{1.1}
+%\linespread{1.1}
 
 \usepackage{listings}
 \lstdefinestyle{cppstyle}{
@@ -37,6 +39,8 @@ frame=single
 \begin{document}
 
 \maketitle
+
+\section{Reading Assembly for fun and profit}
 
 \begin{frame}[fragile]{x86-64 Assembly}
     \begin{lstlisting}[language={[x86masm]Assembler}]
@@ -73,13 +77,146 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[plain]
+EBP and ESP are both just 32-bit general-purpose registers. Although ESP has a special function, which is to act as the stack pointer, and it gets implicitly modified by certain instructions (e.g. push, pop, call). EBP by convention is typically used as a stack frame pointer within functions.
+\end{frame}
+
+\begin{frame}[fragile,plain]
+    \centering
+    \begin{columns}
+        \begin{column}{.3\textwidth}
+            \begin{lstlisting}[language={}]
+leave
+            \end{lstlisting}
+        \end{column}
+        \begin{column}{.2\textwidth}
+            \centering
+            \scalebox{2.}{$\Leftrightarrow$}
+        \end{column}
+        \begin{column}{.3\textwidth}
+            \begin{lstlisting}[language={}]
+mov rsp, rbp
+pop rbp
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[plain]
+    adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. If function is a leaf function, adjusting \texttt{rsp} can be omitted. The offset (\texttt{x} in \texttt{sub rsp, x}) is objective of optimizations such as alignment.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{lea dest, src}}
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \begin{itemize}
+                \item \underline{l}oad \underline{e}ffective \underline{a}ddress
+                \item puts memory address from \texttt{src} into the destination \texttt{dest}
+                \item Example: \texttt{lea eax, [ebx+8]}
+                \begin{itemize}
+                    \item put \texttt{[ebx+8]} into \texttt{EAX}
+                    \item value of \texttt{EAX} after instruction: \texttt{0x00403A48}
+                \end{itemize}
+                \item \ldots whereas: \texttt{mov eax, [ebx+8]}
+                \begin{itemize}
+                    \item value of \texttt{EAX} after instruction: \texttt{0x0012C140}
+                \end{itemize}
+            \end{itemize}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \begin{Verbatim}
+           ┌──────────────────┐
+           │ Registers        │
+           ├──────────────────┤
+           │ EAX = 0x00000000 │ 
+           │ EBX = 0x00403A40 │ 
+           └──────────────────┘
+           ┌────────────┐
+           │ Memory     │
+           ├────────────┤
+0x00403A40 │ 0x7C81776F │ 
+0x00403A44 │ 0x7C911000 │ 
+0x00403A48 │ 0x0012C140 │ 
+0x00403A4C │ 0x7FFDB000 │ 
+           └────────────┘
+            \end{Verbatim}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-            \inputlisting{snippet1}
+            \inputlisting{snippet5a}
+            
+            \only<2>{%
+            \textbf{Optimized build (\texttt{-O1}):}
+            \lstinputlisting[language={}]{snippet5b.asm}}
         \end{column}
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={[x86masm]Assembler}]{snippet1.asm}
+            \lstinputlisting[language={}]{snippet5a.asm}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputlisting{snippet5c}
+
+            \only<2>{%
+            \textbf{Optimized build (\texttt{-O1}):}
+            \lstinputlisting[language={}]{snippet5d.asm}}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet5c.asm}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\section{Implicit Costs of \texttt{const \&}}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputlisting{snippet1a}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet1a.asm}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputlisting{snippet1c}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet1c.asm}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet1a.asm}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet1c.asm}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet1b.asm}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \lstinputlisting[language={}]{snippet1d.asm}
         \end{column}
     \end{columns}
 \end{frame}
@@ -94,7 +231,7 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
 
 \begin{frame}{Guaranteed Copy Elision}
     \begin{itemize}
-        \item It only works because of the \st{guaranteed} accidentally copy elision in GCC (leak in clang)
+        \item It only works because of the \st{guaranteed} accidentally copy elision in GCC (leak in clang) TODO: named RVO (NRVO) is not guaranteed
     \end{itemize}
 \end{frame}
 
@@ -132,6 +269,13 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
 
     \centering
     \scalebox{1.5}{\textbf{Rule of thumb: avoid naming return values}}
+\end{frame}
+
+\begin{frame}{Implicit \texttt{move} on Return}
+    \begin{itemize}
+        \item Q: What happens on \texttt{return expression}?
+        \item A: The \texttt{expression} gets evaluated, the current function is terminated and the result of the \texttt{expression} is returned to the caller, \textbf{after implicit conversion} to the function return type.
+    \end{itemize}
 \end{frame}
 
 \end{document}
