@@ -288,4 +288,32 @@ pop rbp
     \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
+    \inputlisting{snippet6}
+
+    \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{decltype(auto)} or \texttt{auto \&\&}}
+    \texttt{auto} behaves much like a \texttt{T} in a function template:
+    \begin{lstlisting}
+template <typename T>
+void f(T && x) { ... };
+    \end{lstlisting}
+    \ldots \texttt{x} will \textbf{always} be a reference of some kind
+    \begin{lstlisting}
+// if `y` is lvalue, `x` is lvalue reference
+// if `y` is rvalue, `x` is rvalue reference
+f(y); // auto &&x = y;
+f<decltype(y)>(y); // decltype(auto) x = y;
+    \end{lstlisting}
+    whereas \texttt{decltype(auto)} is like explicitly specifying the type via \texttt{decltype(y)}:
+    \begin{lstlisting}
+decltype(auto) a = g();
+decltype(g()) b = g(); // equivalent
+    \end{lstlisting}
+
+    $\Rightarrow$ \texttt{auto \&\&} is always be a reference, \texttt{decltype(auto)} is not. \texttt{auto \&\&}'s lifetime extension for rvalues only works with local variables: binding a temporary return value to an \texttt{auto \&\&} creates a reference to a temporary which will dangle when the return values is destructed. 
+\end{frame}
+
 \end{document}
