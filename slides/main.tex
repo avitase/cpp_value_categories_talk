@@ -43,14 +43,14 @@ frame=single
 \section{Reading Assembly for fun and profit}
 
 \begin{frame}[fragile]{x86-64 Assembly}
-    \begin{lstlisting}[language={[x86masm]Assembler}]
+    \begin{lstlisting}[language={}]
 instr
 instr dest_operand
 instr dest_operand, source_operand
 instr dest_operand, source_operand, source_operand
     \end{lstlisting}
 
-    \begin{lstlisting}[language={[x86masm]Assembler}]
+    \begin{lstlisting}[language={}]
 ret                        ; return
 inc rax                    ; increment "rax" by one
 mov edx, 1234              ; set "edx" to the value 1234
@@ -78,7 +78,9 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
 \end{frame}
 
 \begin{frame}[plain]
-EBP and ESP are both just 32-bit general-purpose registers. Although ESP has a special function, which is to act as the stack pointer, and it gets implicitly modified by certain instructions (e.g. push, pop, call). EBP by convention is typically used as a stack frame pointer within functions.
+    \begin{itemize}
+        \item EBP and ESP are both just 32-bit general-purpose registers. Although ESP has a special function, which is to act as the stack pointer, and it gets implicitly modified by certain instructions (e.g. push, pop, call). EBP by convention is typically used as a stack frame pointer within functions.
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile,plain]
@@ -103,7 +105,15 @@ pop rbp
 \end{frame}
 
 \begin{frame}[plain]
-    adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. If function is a leaf function, adjusting \texttt{rsp} can be omitted. The offset (\texttt{x} in \texttt{sub rsp, x}) is objective of optimizations such as alignment.
+    \begin{itemize}
+        \item adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. If function is a leaf function, adjusting \texttt{rsp} can be omitted. The offset (\texttt{x} in \texttt{sub rsp, x}) is objective of optimizations such as alignment.
+        \item ABI requires that the stack be aligned to 16 bytes when you place the call. Alternatively speaking, that it be off 16 bytes alignment as you get called (as CALL pushes 8 bytes).
+        \item \texttt{CALL} inserts 8 bytes in the stack, the return address
+        \item \texttt{RET} pops it and transfers control there
+        \item \texttt{CALL} = \texttt{PUSH} <address of next instruction; JMP <target>
+        \item Clang's choice is probably instruction size: \texttt{PUSH RAX} and \texttt{POP RCX} are each 1 byte; the GCC's \texttt{ADD} are 4 bytes.
+        \item the \texttt{MOVDQA} and \texttt{MOVAPS} instructions require 16-byte alignment.
+    \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{\texttt{lea dest, src}}
