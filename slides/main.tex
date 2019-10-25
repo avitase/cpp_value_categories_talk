@@ -316,4 +316,108 @@ decltype(g()) b = g(); // equivalent
     $\Rightarrow$ \texttt{auto \&\&} is always be a reference, \texttt{decltype(auto)} is not. \texttt{auto \&\&}'s lifetime extension for rvalues only works with local variables: binding a temporary return value to an \texttt{auto \&\&} creates a reference to a temporary which will dangle when the return values is destructed. 
 \end{frame}
 
+\begin{frame}[fragile]
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \inputlisting{snippet7}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \begin{lstlisting}[language={},morekeywords={rdi}]
+S::S(int):
+  push rbp
+  mov rbp, rsp
+  mov QWORD PTR [rbp-8], rdi
+  mov DWORD PTR [rbp-12], esi
+  mov rax, QWORD PTR [rbp-8]
+  mov edx, DWORD PTR [rbp-12]
+  mov DWORD PTR [rax], edx
+  nop
+  pop rbp
+  ret
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \inputlisting{snippet7}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \begin{lstlisting}[language={},morekeywords={rdi}]
+S::~S() [base object destructor]:
+  push rbp
+  mov rbp, rsp
+  mov QWORD PTR [rbp-8], rdi
+  nop
+  pop rbp
+  ret
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \inputlisting{snippet7}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \begin{lstlisting}[language={},morekeywords={rdi}]
+f():
+  [...]
+  mov QWORD PTR [rbp-24], rdi
+  lea rax, [rbp-4]
+  mov esi, 42
+  mov rdi, rax
+  call S::S(int)
+  lea rdx, [rbp-4]
+  mov rax, QWORD PTR [rbp-24]
+  mov rsi, rdx
+  mov rdi, rax
+  call S::S(S const&)
+  lea rax, [rbp-4]
+  mov rdi, rax
+  call S::~S()
+  nop
+  mov rax, QWORD PTR [rbp-24]
+  [...]
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \inputlisting{snippet7}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \begin{lstlisting}[language={},morekeywords={rdi}]
+g():
+  [...]
+  sub rsp, 24
+  lea rax, [rbp-20]
+  mov rdi, rax
+  call f()
+  lea rdx, [rbp-20]
+  lea rax, [rbp-24]
+  mov rsi, rdx
+  mov rdi, rax
+  call S::S(S const&)
+  lea rax, [rbp-20]
+  mov rdi, rax
+  call S::~S()
+  mov ebx, DWORD PTR [rbp-24]
+  lea rax, [rbp-24]
+  mov rdi, rax
+  call S::~S()
+  mov eax, ebx
+  [...]
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
 \end{document}
