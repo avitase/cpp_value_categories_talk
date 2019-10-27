@@ -1,4 +1,3 @@
-// -O0
 void side_effect();
 
 int f(int x) {

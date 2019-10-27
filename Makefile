@@ -1,5 +1,5 @@
 SNIPPETS := $(shell \
-for f in `find snippets -name '*.cpp'`; do echo "$${f%.cpp}_lst.tex"; done\
+for f in `find snippets -name '*.cfg'`; do echo "$${f%.cfg}_lst.tex"; done\
 )
 
 all: $(SNIPPETS) slides/build/main.pdf
@@ -11,7 +11,7 @@ venv/bin/activate: requirements.txt
 	. venv/bin/activate; pip install -Ur requirements.txt
 	touch venv/bin/activate
 
-snippet%_lst.tex: snippet%.cpp venv convert.py
+snippets/snippet%_lst.tex: snippets/snippet%.cfg venv convert.py
 	. venv/bin/activate; python convert.py $<
 
 slides/build/main.pdf: $(shell find slides -name '*.tex') $(SNIPPETS)

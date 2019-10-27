@@ -1,9 +1,7 @@
-#include <functional>
+int f(int x) {
+    return x + 1;
+}
 
-template <typename Iter, typename Callable, typename... Args>
-void foreach (Iter current, Iter end, Callable op, const Args &... args) {
-    while (current != end) {
-        std::invoke(op, args..., *current);
-        ++current;
-    }
+int g(int x) {
+    return f(x + 2);
 }

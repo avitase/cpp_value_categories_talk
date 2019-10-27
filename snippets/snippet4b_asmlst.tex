@@ -1,4 +1,5 @@
-# g92 -O0 -std=c++14 -fno-elide-constructors
+\begin{lstlisting}[language={},numbers=none,title=\href{https://godbolt.org/z/0fo_Aq}{\texttt{godbolt.org/z/0fo\_Aq}}]
+# g92 -O0 -std=c++17
   | S::S() [base object constructor]:
  5|   push rbp
  5|   mov rbp, rsp
@@ -10,11 +11,12 @@
  5|   nop
  5|   leave
  5|   ret
-  | S::S(S const&&):
- 7|   push rbp
- 7|   mov rbp, rsp
- 7|   sub rsp, 16
- 7|   mov QWORD PTR [rbp-8], rdi
- 7|   mov QWORD PTR [rbp-16], rsi
- 7|   mov esi, 99
+  | f():
+12|   push rbp
+12|   mov rbp, rsp
+12|   sub rsp, 16
+12|   mov QWORD PTR [rbp-8], rdi
+12|   mov rax, QWORD PTR [rbp-8]
+12|   mov rdi, rax
 [...]
+\end{lstlisting}

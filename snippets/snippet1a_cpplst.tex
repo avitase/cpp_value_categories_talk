@@ -1,0 +1,9 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/I6JE-v}{\texttt{godbolt.org/z/I6JE-v}}]
+void side_effect();
+
+int f(int x) {
+    auto a = x;
+    side_effect();
+    return a - x;
+}
+\end{lstlisting}

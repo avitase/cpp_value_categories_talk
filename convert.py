@@ -1,11 +1,9 @@
 import json
 import os
 import sys
+from collections import defaultdict
 
 import requests
-
-
-COMPILER = 'g92'
 
 
 def require(p, error_msg):
@@ -25,20 +23,21 @@ def read_source(file_name):
     return ''.join(lines)
 
 
+def read_cfg(file_name):
+    lines = open(file_name, 'r').readlines()
+    return defaultdict(lambda: None, json.loads(''.join(lines)))
+
+
 def truncate_source(source, max_lines=20):
     lines = source.split('\n')
-    if len(lines) > 21:
-        lines = lines[:19]
+    if len(lines) > max_lines + 1:
+        lines = lines[:max_lines - 1]
         lines.append('[...]\n')
     return '\n'.join(lines)
 
 
-def compile(source, flags=None, hide_flags=None):
-    compiler = COMPILER
-    if flags is None:
-        flags = '-std=c++2a -O3'
-    if hide_flags is None:
-        hide_flags = ''
+def compile(source, compiler, flags=None):
+    flags = flags if flags else ''
 
     filters = {
         'binary': False,
@@ -62,26 +61,31 @@ def compile(source, flags=None, hide_flags=None):
     }
 
     url = f'https://godbolt.org/api/compiler/{compiler}/compile'
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
     response = requests.post(url, data=json.dumps(data), headers=headers)
 
     if response.status_code == 200:
-        asm = response.content.decode('utf8')
-        lines = asm.split('\n')
-        if lines and lines[0].strip().startswith('# Compilation provided by'):
-            lines = lines[1:]
+        content = json.loads(response.content.decode('utf8'))
+        asm = content['asm'] if 'asm' in content else []
 
-        info = f'# {compiler} ' + ' '.join(f for f in flags.split(' ') if f not in hide_flags)
-        return '\n'.join([info,] + [line.rstrip() for line in lines])
+        lines = [f'# {compiler} {flags}', ]
+        for line in asm:
+            txt = line['text']
+            src = line['source']
+
+            if not txt.strip().startswith('#'):
+                n = src['line'] if src and 'line' in src else ''
+                lines.append(f'{n:>2}| {txt}')
+
+        return '\n'.join(lines)
     return None
 
 
-def upload(source, flags=None):
-    if flags is None:
-        flags = '-std=c++2a -O3'
+def upload(source, compiler=None, flags=None, execute=False):
+    flags = flags if flags else ''
 
-    compiler_cfg = {'id': COMPILER, 'options': flags, }
-    executor_cfg = {'compiler': compiler_cfg, }
+    compiler_cfg = {'id': compiler, 'options': flags, }
+    executor_cfg = {'compiler': compiler_cfg, } if execute else {}
     data = {
         'sessions': [{
             'id': 1,
@@ -102,47 +106,54 @@ def upload(source, flags=None):
     return None
 
 
-def make_listing(*, source, url):
-    title = url.lstrip('http://').lstrip('https://').lstrip('www.')
-    title = title.replace('_', r'\_')
+def make_listing(source, url=None, options=None):
+    options = options if options else []
+
+    if url:
+        title = url.lstrip('http://').lstrip('https://').lstrip('www.')
+        title = title.replace('_', r'\_')
+        options.append(r'title=\href{' + url + r'}{\texttt{' + title + '}}')
 
     tex = r'\begin{lstlisting}'
-    tex += r'[title=\href{' + url + r'}{\texttt{' + title + '}}]\n'
-    tex += source
+    tex += '[' + ','.join(options) + ']\n'
+    tex += source.rstrip() + '\n'
     tex += r'\end{lstlisting}' + '\n'
     return tex
 
 
 if __name__ == '__main__':
-    require(len(sys.argv) == 2, 'Usage {} [file.cpp]'.format(sys.argv[0]))
+    require(len(sys.argv) == 2, 'Usage {} [file.cfg]'.format(sys.argv[0]))
 
-    file_name = sys.argv[1]
-    root, _ = os.path.splitext(file_name)
-    require(os.path.isfile(file_name), f'File \'{file_name}\' does not exist!')
+    cfg_file = sys.argv[1]
+    root, _ = os.path.splitext(cfg_file)
+    require(os.path.isfile(cfg_file), f'File \'{cfg_file}\' does not exist!')
 
-    source = read_source(file_name)
-    require(source, f'File \'{file_name}\' is empty!')
+    cfg = read_cfg(cfg_file)
+    cpp_file = os.path.join(os.path.dirname(cfg_file), cfg['cpp_file'])
+    require(cpp_file, 'Could not find property \'cpp_file\'!')
 
-    first_line = source.split('\n')[0]
-    if first_line.startswith('//'):
-        flags = first_line.lstrip('//').strip()
-        hide_flags = None
-    else:
-        flags = '-O3 -std=c++2a -march=haswell'
-        hide_flags = '-std=c++2a -march=haswell'
+    require(os.path.isfile(cpp_file), f'File \'{cpp_file}\' does not exist!')
+    source = read_source(cpp_file)
+    require(source, f'File \'{cpp_file}\' is empty!')
 
-    asm = compile(source=source, flags=flags, hide_flags=hide_flags)
-    if asm:
-        asm = truncate_source(asm)
-        open(root + '.asm', 'w').write(asm)
-    else:
-        print('Error: Could not receive compilation result from godbold.org!')
-
-    url = upload(source=source, flags=flags)
+    compiler = cfg['compiler']
+    execute = cfg['execute']
+    execute = execute if execute else False
+    url = upload(source=source, compiler=compiler, flags=cfg['flags'], execute=execute)
     if not url:
         print('Error: Could not receive URL from godbold.org!')
         url = '???'
 
-    with open(root + '_lst.tex', 'w') as f:
+    if compiler:
+        asm = compile(source=source, compiler=compiler, flags=cfg['flags'])
+        if asm:
+            with open(root + '_asmlst.tex', 'w') as f:
+                asm = truncate_source(asm)
+                f.write(make_listing(asm, url=url, options=['language={}', 'numbers=none']))
+            open(root + '.asm', 'w').write(asm)
+        else:
+            print('Error: Could not receive compilation result from godbold.org!')
+
+    with open(root + '_cpplst.tex', 'w') as f:
         source = truncate_source(source)
-        f.write(make_listing(source=source, url=url))
+        f.write(make_listing(source, url=url))

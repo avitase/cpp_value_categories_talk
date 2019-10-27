@@ -26,7 +26,8 @@ frame=single
 \lstset{style=cppstyle}
 \lstset{morekeywords={decltype,final}}
 \lstset{inputpath=../snippets}
-\newcommand{\inputlisting}[1]{\input{../snippets/#1_lst.tex}}
+\newcommand{\inputcpplisting}[1]{\input{../snippets/#1_cpplst.tex}}
+\newcommand{\inputasmlisting}[1]{\input{../snippets/#1_asmlst.tex}}
 
 \usepackage{fontspec}
 \setmonofont{Hack}
@@ -157,14 +158,14 @@ pop rbp
 \begin{frame}[fragile]{Reading Assembly for Fun and Profit}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-            \inputlisting{snippet5a}
+            \inputcpplisting{snippet5a}
             
             \only<2>{%
             \textbf{Optimized build (\texttt{-O1}):}
-            \lstinputlisting[language={}]{snippet5b.asm}}
+            \inputasmlisting{snippet5b}}
         \end{column}
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet5a.asm}
+            \inputasmlisting{snippet5a}
         \end{column}
     \end{columns}
 \end{frame}
@@ -172,14 +173,13 @@ pop rbp
 \begin{frame}[fragile]{Reading Assembly for Fun and Profit}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-            \inputlisting{snippet5c}
+            \inputcpplisting{snippet6a}
 
             \only<2>{%
-            \textbf{Optimized build (\texttt{-O1}):}
-            \lstinputlisting[language={}]{snippet5d.asm}}
+            \inputasmlisting{snippet6b}}
         \end{column}
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet5c.asm}
+            \inputasmlisting{snippet6a}
         \end{column}
     \end{columns}
 
@@ -190,21 +190,10 @@ pop rbp
 \begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-            \inputlisting{snippet1a}
+            \inputcpplisting{snippet1a}
         \end{column}
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet1a.asm}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputlisting{snippet1c}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet1c.asm}
+            \inputasmlisting{snippet1a}
         \end{column}
     \end{columns}
 \end{frame}
@@ -212,10 +201,10 @@ pop rbp
 \begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet1a.asm}
+            \inputcpplisting{snippet2a}
         \end{column}
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet1c.asm}
+            \inputcpplisting{snippet2b}
         \end{column}
     \end{columns}
 \end{frame}
@@ -223,20 +212,31 @@ pop rbp
 \begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet1b.asm}
+            \inputasmlisting{snippet1a}
         \end{column}
         \begin{column}{.45\textwidth}
-            \lstinputlisting[language={}]{snippet1d.asm}
+            \inputasmlisting{snippet2a}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet1b}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet2b}
         \end{column}
     \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]
-    \inputlisting{snippet2}
+    \inputcpplisting{snippet8}
 \end{frame}
 
 \begin{frame}[fragile]{Does this code bother anyone?}
-    \inputlisting{snippet3}
+    \inputcpplisting{snippet3}
 \end{frame}
 
 \begin{frame}{Guaranteed Copy Elision}
@@ -246,25 +246,25 @@ pop rbp
 \end{frame}
 
 \begin{frame}[fragile]{Q: What is the output of the following program?}
-    \inputlisting{snippet4a}
+    \inputcpplisting{snippet4a}
 \end{frame}
 
 \begin{frame}[fragile]{A: \texttt{ac}, \texttt{acc}, \texttt{acc}}
-    \inputlisting{snippet4a}
+    \inputcpplisting{snippet4a}
 \end{frame}
 
 \begin{frame}[fragile]{Q: What is the output of the following program?}
-    \inputlisting{snippet4b}
+    \inputcpplisting{snippet4b}
 \end{frame}
 
 \begin{frame}[fragile]{A: \texttt{a}, \texttt{a}, \texttt{a}}
-    \inputlisting{snippet4b}
+    \inputcpplisting{snippet4b}
 \end{frame}
 
 \begin{frame}{Copy Elision}
     \begin{columns}
         \begin{column}{.45\textwidth}
-            \inputlisting{snippet4c}
+            \inputcpplisting{snippet10}
         \end{column}
         \begin{column}{.5\textwidth}
             Mandatory elision of copy/move operations since \texttt{C++17}):
@@ -289,7 +289,7 @@ pop rbp
 \end{frame}
 
 \begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
-    \inputlisting{snippet6}
+    \inputcpplisting{snippet9}
 
     \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
 \end{frame}
@@ -319,7 +319,7 @@ decltype(g()) b = g(); // equivalent
 \begin{frame}[fragile]
     \begin{columns}
         \begin{column}{.5\textwidth}
-            \inputlisting{snippet7}
+            \inputcpplisting{snippet7}
         \end{column}
         \begin{column}{.4\textwidth}
             \begin{lstlisting}[language={},morekeywords={rdi}]
@@ -342,7 +342,7 @@ S::S(int):
 \begin{frame}[fragile]
     \begin{columns}
         \begin{column}{.5\textwidth}
-            \inputlisting{snippet7}
+            \inputcpplisting{snippet7}
         \end{column}
         \begin{column}{.4\textwidth}
             \begin{lstlisting}[language={},morekeywords={rdi}]
@@ -361,7 +361,7 @@ S::~S() [base object destructor]:
 \begin{frame}[fragile]
     \begin{columns}
         \begin{column}{.5\textwidth}
-            \inputlisting{snippet7}
+            \inputcpplisting{snippet7}
         \end{column}
         \begin{column}{.4\textwidth}
             \begin{lstlisting}[language={},morekeywords={rdi}]
@@ -391,7 +391,7 @@ f():
 \begin{frame}[fragile]
     \begin{columns}
         \begin{column}{.5\textwidth}
-            \inputlisting{snippet7}
+            \inputcpplisting{snippet7}
         \end{column}
         \begin{column}{.4\textwidth}
             \begin{lstlisting}[language={},morekeywords={rdi}]
@@ -419,5 +419,4 @@ g():
         \end{column}
     \end{columns}
 \end{frame}
-
 \end{document}
