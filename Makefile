@@ -2,7 +2,7 @@
 
 all: slides/build/main.pdf
 
-slides/build/main.pdf: $(shell find slides -name '*.tex') $(SNIPPETS)
+slides/build/main.pdf: $(shell find slides -name '*.tex')
 	cd slides && mkdir -p build && \
 	latexmk -halt-on-error -pdflatex=lualatex -pdf -jobname=build/main main.tex
 
