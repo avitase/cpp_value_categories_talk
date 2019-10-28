@@ -81,18 +81,19 @@ def compile(source, compiler, flags=None):
     return None
 
 
-def upload(source, compiler=None, flags=None, execute=False):
+def upload(source, compiler=None, flags=None, compile=True, execute=False):
     flags = flags if flags else ''
 
     compiler_cfg = {'id': compiler, 'options': flags, }
-    executor_cfg = {'compiler': compiler_cfg, } if execute else {}
+    executor_cfg = {'compiler': compiler_cfg, }
+
     data = {
         'sessions': [{
             'id': 1,
             'language': 'c++',
             'source': source,
-            'compilers': [compiler_cfg, ],
-            'executors': [executor_cfg, ],
+            'compilers': [compiler_cfg, ] if compile else [],
+            'executors': [executor_cfg, ] if execute else [],
         }, ],
     }
 
@@ -137,9 +138,11 @@ if __name__ == '__main__':
     require(source, f'File \'{cpp_file}\' is empty!')
 
     compiler = cfg['compiler']
-    execute = cfg['execute']
-    execute = execute if execute else False
-    url = upload(source=source, compiler=compiler, flags=cfg['flags'], execute=execute)
+    url = upload(source=source,
+                 compiler=compiler,
+                 flags=cfg['flags'],
+                 compile=(cfg['compile'] is True),
+                 execute=(cfg['execute'] is True))
     if not url:
         print('Error: Could not receive URL from godbold.org!')
         url = '???'
@@ -148,12 +151,16 @@ if __name__ == '__main__':
         asm = compile(source=source, compiler=compiler, flags=cfg['flags'])
         if asm:
             with open(root + '_asmlst.tex', 'w') as f:
-                asm = truncate_source(asm)
+                if cfg['truncate'] is not False:
+                    asm = truncate_source(asm)
+
                 f.write(make_listing(asm, url=url, options=['language={}', 'numbers=none']))
             open(root + '.asm', 'w').write(asm)
         else:
             print('Error: Could not receive compilation result from godbold.org!')
 
     with open(root + '_cpplst.tex', 'w') as f:
-        source = truncate_source(source)
+        if cfg['truncate'] is not False:
+            source = truncate_source(source)
+
         f.write(make_listing(source, url=url))
