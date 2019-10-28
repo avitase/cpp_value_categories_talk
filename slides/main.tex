@@ -418,4 +418,217 @@ g():
         \end{column}
     \end{columns}
 \end{frame}
+
+\begin{frame}[fragile]{Forwarding Values and Preserving Value Category}
+    \centering
+
+    \scalebox{.7}{(derived from \href{https://youtu.be/hwT8K3-NH1w}{CppCon 2018: \textit{Hayun Ezra Chung} \enquote{Forwarding Values... and Backwarding Them Too?})}}
+
+    \only<1>{\inputcpplisting{snippet11a}}%
+    \only<2>{\inputcpplisting{snippet11b}}%
+    \only<3>{\inputcpplisting{snippet11c}}%
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Category}
+    \only<1>{\inputcpplisting{snippet18a}}%
+    \only<2>{\inputcpplisting{snippet18b}}%
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Category}
+    \textbf{Q:} Why is this a bad idea?
+    \begin{lstlisting}
+auto&& visit(auto visitor) {
+    auto&& result = visitor(resource);
+    return result;
+}
+    \end{lstlisting}
+    
+    \only<2>{%
+    \textbf{A:} Dangling reference for
+
+    \centering
+    \texttt{visit([](Resource \&r) -> Resource \{ return r; \}));}
+
+    \vspace{.5cm}
+
+    \begin{center}
+        \scalebox{1.5}{\texttt{auto\&\&} is always a reference!}
+    \end{center}}
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Category}
+    \only<1>{\inputcpplisting{snippet12a}}%
+    \only<2>{\inputcpplisting{snippet12b}}
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Category}
+    \only<1>{\inputcpplisting{snippet12a}}%
+    \only<2>{\inputcpplisting{snippet12b}}
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Category}
+    \only<1>{\inputcpplisting{snippet13a}}%
+    \only<2>{\inputcpplisting{snippet13b}}
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Category}
+    \centering
+    \only<1>{\inputcpplisting{snippet14a}}%
+    \only<2,3>{%
+        \only<3>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind rvalue reference of type \enquote{Resource\&\&} to lvalue of type \enquote{Resource}}%
+        \inputcpplisting{snippet14b}%
+    }%
+    \only<4>{\inputcpplisting{snippet14c}}
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Categroy}
+    \centering
+    \scalebox{1.5}{How do we fuse these implementations?}
+
+    \begin{lstlisting}
+Resource visit(auto visitor) {
+    Resource result = visitor(resource);
+    return result;
+}
+
+Resource& visit(auto visitor) {
+    Resource& result = visitor(resource);
+    return result;
+}
+
+Resource&& visit(auto visitor) {
+    Resource&& result = visitor(resource);
+    return static_cast<Resource&&>(result);
+}
+    \end{lstlisting}
+
+    \begin{lstlisting}
+Target(rm.visit([](Resource &r) -> Resource { return r; }));
+Target(rm.visit([](Resource &r) -> Resource& { return r; }));
+Target(rm.visit([](Resource &r) -> Resource&& { return std::move(r); }));
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Backwarding Values and Preserving Value Categroy}
+    \centering
+    \scalebox{1.5}{How do we fuse these implementations?}
+
+    \begin{lstlisting}
+Resource visit(auto visitor) {
+    Resource result = visitor(resource);
+    return result;
+}
+
+Resource& visit(auto visitor) {
+    Resource& result = visitor(resource);
+    return result;
+}
+
+Resource&& visit(auto visitor) {
+    Resource&& result = visitor(resource);
+    return static_cast<Resource&&>(result);
+}
+    \end{lstlisting}
+
+    \begin{lstlisting}
+decltype(auto) visit(auto visitor) {
+    decltype(auto) result = visitor(resource);
+    return static_cast<decltype(result)>(result);
+}
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile,plain,noframenumbering]
+    \centering
+    \scalebox{.7}{(derived from \href{https://youtu.be/hwT8K3-NH1w}{CppCon 2018: \textit{Hayun Ezra Chung} \enquote{Forwarding Values... and Backwarding Them Too?})}}
+
+    \inputcpplisting{snippet15}
+\end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{5.}{\color{vertexDarkRed}$*$}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the Output of the Program?}
+    \inputcpplisting{snippet16a}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{a}}
+    \inputcpplisting{snippet16a}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the Output of the Program?}
+    \inputcpplisting{snippet16b}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aa}}
+    \inputcpplisting{snippet16b}
+\end{frame}
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \begin{lstlisting}
+struct Resource {
+    ...
+    Resource(const Resource&) { std::cout << 'a'; }
+};
+
+Resource visit(auto visitor) {
+    Resource result = visitor(resource);
+    return static_cast<Resource>(result);
+}
+    \end{lstlisting}
+
+    \textbf{Neither RVO nor NRVO!}
+    \begin{itemize}
+        \item \texttt{static\_cast} is not the name of a variable
+        \item compiler cannot elide observable side effects of copy construction
+        \item \enquote{Solution}
+        \begin{itemize}
+            \item remove explicit cast, or
+            \item remove side effect (\texttt{std::cout})
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \begin{lstlisting}
+template <typename T>
+decltype(auto) visit(T visitor) {
+    decltype(auto) result = visitor(resource);
+    if constexpr (std::is_same_v<decltype(result), Resource&&>) {
+        return std::move(result);
+    } else {
+        return result;
+    }
+}
+    \end{lstlisting}
+
+    \hfill \ldots works for GCC (without \texttt{auto} concept), not for clang though
+\end{frame}
+
+\begin{frame}[fragile,plain,noframenumbering]
+    \inputcpplisting{snippet17}
+\end{frame}
+
+\begin{frame}{Conclusion}
+    \begin{center}
+        \scalebox{.7}{(shamelessly copied from \href{https://youtu.be/hwT8K3-NH1w}{CppCon 2018: \textit{Hayun Ezra Chung} \enquote{Forwarding Values... and Backwarding Them Too?})}}
+    \end{center}
+    
+    \textbf{Forwarding}
+    \begin{itemize}
+        \item Parameter Type: \texttt{T\&\&}
+        \item Function Argument: \texttt{std::forward<E>(e)}
+        \item Alternatively: \texttt{static\_cast<decltype(e)\&\&>(e)}
+    \end{itemize}
+
+    \textbf{Backwarding}
+    \begin{itemize}
+        \item Parameter Type: \texttt{decltype(auto)}
+        \item Function Argument: \texttt{decltype(e)(e)}
+        \item Alternatively: \texttt{static\_cast<decltype(e)>(e)}$^*$
+    \end{itemize}
+\end{frame}
+
 \end{document}

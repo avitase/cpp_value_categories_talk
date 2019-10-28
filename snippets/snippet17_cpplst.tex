@@ -1,0 +1,22 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/YF3jpV}{\texttt{godbolt.org/z/YF3jpV}}]
+#include <iostream>
+
+struct Resource {
+    Resource() {}
+    Resource(const Resource&) { std::cout << 'a'; }
+};
+struct ResourceManager {
+    Resource resource;
+
+    template <typename T>
+    decltype(auto) visit(T visitor) {
+        decltype(auto) result = visitor(resource);
+        if constexpr (std::is_same_v<decltype(result), Resource&&>) {
+            return std::move(result);
+        } else {
+            return result;
+        }
+    }
+};
+[...]
+\end{lstlisting}
