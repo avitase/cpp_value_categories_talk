@@ -656,6 +656,29 @@ auto visit(T visitor) -> decltype(visitor(resource)) {
     \inputcpplisting{snippet17}
 \end{frame}
 
+\begin{frame}[fragile,plain,noframenumbering]
+    \scalebox{3.}{More things that don't work}
+\end{frame}
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \inputcpplisting{snippet19a}
+
+    \hfill \ldots works with GCC, fails with clang
+\end{frame}
+
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \inputcpplisting{snippet19b}
+
+    \hfill \ldots works with clang, fails with GCC
+\end{frame}
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \inputcpplisting{snippet19c}
+
+    \hfill \ldots fails with GCC and clang
+\end{frame}
+
 \begin{frame}{Conclusion}
     \begin{center}
         \scalebox{.7}{(shamelessly copied from \href{https://youtu.be/hwT8K3-NH1w}{CppCon 2018: \textit{Hayun Ezra Chung} \enquote{Forwarding Values... and Backwarding Them Too?})}}

@@ -1,0 +1,22 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/jpCb6h}{\texttt{godbolt.org/z/jpCb6h}}]
+#include <iostream>
+
+struct Resource {
+    Resource() {}
+    Resource(const Resource&) { std::cout << 'a'; }
+};
+struct ResourceManager {
+    Resource resource;
+
+    template <typename T>
+    auto visit(T visitor) -> decltype(visitor(resource)) {
+        using R = std::invoke_result_t<T, Resource&>;
+        if constexpr (std::is_same_v<R, Resource&&>) {
+            decltype(auto) result = visitor(resource);
+            return std::move(result);
+        } else {
+            decltype(auto) result = visitor(resource);
+            return result;
+        }
+[...]
+\end{lstlisting}
