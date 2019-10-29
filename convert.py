@@ -147,7 +147,7 @@ if __name__ == '__main__':
         print('Error: Could not receive URL from godbold.org!')
         url = '???'
 
-    if compiler:
+    if cfg['compile'] is True:
         asm = compile(source=source, compiler=compiler, flags=cfg['flags'])
         if asm:
             with open(root + '_asmlst.tex', 'w') as f:
