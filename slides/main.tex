@@ -21,7 +21,10 @@ numbers=left,
 stringstyle=\ttfamily\color{vertexDarkRed},
 commentstyle=\itshape\color{vertexDarkBlue},
 captionpos={b},
-frame=single
+frame=single,
+morekeywords={constexpr},
+breaklines=true,
+postbreak=\mbox{$\hookrightarrow$\space},
 }
 \lstset{style=cppstyle}
 \lstset{morekeywords={decltype,final}}
@@ -569,7 +572,7 @@ decltype(auto) visit(auto visitor) {
 \begin{frame}[fragile]{Missing (N)RVO}
     \begin{lstlisting}
 struct Resource {
-    ...
+    [...]
     Resource(const Resource&) { std::cout << 'a'; }
 };
 
@@ -581,7 +584,7 @@ Resource visit(auto visitor) {
 
     \textbf{Neither RVO nor NRVO!}
     \begin{itemize}
-        \item \texttt{static\_cast} is not the name of a variable
+        \item \texttt{static\_cast} is not the name of a variable (c-style cast does not work either)
         \item compiler cannot elide observable side effects of copy construction
         \item \enquote{Solution}
         \begin{itemize}
@@ -605,6 +608,48 @@ decltype(auto) visit(T visitor) {
     \end{lstlisting}
 
     \hfill \ldots works for GCC (without \texttt{auto} concept), not for clang though
+\end{frame}
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \begin{lstlisting}
+template <typename T>
+static constexpr bool returns_rref = std::is_same_v<std::invoke_result_t<T, Resource&>, Resource&&>;
+
+template <typename T, std::enable_if_t<returns_rref<T>, int> = 0>
+decltype(auto) visit(T visitor) {
+    decltype(auto) result = visitor(resource);
+    return std::move(result);
+}
+
+template <typename T, std::enable_if_t<not returns_rref<T>, int> = 0>
+decltype(auto) visit(T visitor) {
+    decltype(auto) result = visitor(resource);
+    return result;
+}
+    \end{lstlisting}
+
+    \hfill \ldots still, no NRVO with clang but this time due to the deduced return type!
+\end{frame}
+
+\begin{frame}[fragile]{Missing (N)RVO}
+    \begin{lstlisting}
+template <typename T>
+static constexpr bool returns_rref = std::is_same_v<std::invoke_result_t<T, Resource&>, Resource&&>;
+
+template <typename T, std::enable_if_t<returns_rref<T>, int> = 0>
+decltype(auto) visit(T visitor) {
+    decltype(auto) result = visitor(resource);
+    return std::move(result);
+}
+
+template <typename T, std::enable_if_t<not returns_rref<T>, int> = 0>
+auto visit(T visitor) -> decltype(visitor(resource)) {
+    decltype(auto) result = visitor(resource);
+    return result;
+}
+    \end{lstlisting}
+
+    \hfill \ldots now works for GCC and clang!
 \end{frame}
 
 \begin{frame}[fragile,plain,noframenumbering]

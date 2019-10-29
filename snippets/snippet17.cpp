@@ -8,13 +8,18 @@ struct ResourceManager {
     Resource resource;
 
     template <typename T>
+    static constexpr bool returns_rref = std::is_same_v<std::invoke_result_t<T, Resource&>, Resource&&>;
+
+    template <typename T, std::enable_if_t<returns_rref<T>, int> = 0>
     decltype(auto) visit(T visitor) {
         decltype(auto) result = visitor(resource);
-        if constexpr (std::is_same_v<decltype(result), Resource&&>) {
-            return std::move(result);
-        } else {
-            return result;
-        }
+        return std::move(result);
+    }
+
+    template <typename T, std::enable_if_t<not returns_rref<T>, int> = 0>
+    auto visit(T visitor) -> decltype(visitor(resource)) {
+        decltype(auto) result = visitor(resource);
+        return result;
     }
 };
 struct Target {
