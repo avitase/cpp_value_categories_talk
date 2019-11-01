@@ -1,9 +1,10 @@
-\begin{lstlisting}[title=\href{https://godbolt.org/z/LY5mZK}{\texttt{godbolt.org/z/LY5mZK}}]
-struct S {
+\begin{lstlisting}[title=\href{https://godbolt.org/z/7jFfVD}{\texttt{godbolt.org/z/7jFfVD}}]
+struct S final {
     int x;
-    S(int x): x(x) {}
-    S(const S &other): x(other.x) {}
-    ~S() { /* non-trivial */ }
+    explicit S(int x) noexcept;
+    S(const S&) noexcept;
+    S(S&&) noexcept;
+    ~S() noexcept;
 };
 
 S f() {

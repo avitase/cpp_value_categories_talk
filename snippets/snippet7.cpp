@@ -1,8 +1,9 @@
-struct S {
+struct S final {
     int x;
-    S(int x): x(x) {}
-    S(const S &other): x(other.x) {}
-    ~S() { /* non-trivial */ }
+    explicit S(int x) noexcept;
+    S(const S&) noexcept;
+    S(S&&) noexcept;
+    ~S() noexcept;
 };
 
 S f() {

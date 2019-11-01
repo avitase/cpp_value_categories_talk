@@ -1,22 +1,22 @@
-\begin{lstlisting}[language={},numbers=none,title=\href{https://godbolt.org/z/LY5mZK}{\texttt{godbolt.org/z/LY5mZK}}]
+\begin{lstlisting}[language={},numbers=none,title=\href{https://godbolt.org/z/7jFfVD}{\texttt{godbolt.org/z/7jFfVD}}]
 # g92 -O0 -fno-elide-constructors -std=c++14
-  | S::S(int):
- 3|   push rbp
- 3|   mov rbp, rsp
- 3|   mov QWORD PTR [rbp-8], rdi
- 3|   mov DWORD PTR [rbp-12], esi
- 3|   mov rax, QWORD PTR [rbp-8]
- 3|   mov edx, DWORD PTR [rbp-12]
- 3|   mov DWORD PTR [rax], edx
- 3|   nop
- 3|   pop rbp
- 3|   ret
-  | S::S(S const&):
- 4|   push rbp
- 4|   mov rbp, rsp
- 4|   mov QWORD PTR [rbp-8], rdi
- 4|   mov QWORD PTR [rbp-16], rsi
- 4|   mov rax, QWORD PTR [rbp-16]
- 4|   mov edx, DWORD PTR [rax]
+  | f():
+ 9|   push rbp
+ 9|   mov rbp, rsp
+ 9|   sub rsp, 32
+ 9|   mov QWORD PTR [rbp-24], rdi
+10|   lea rax, [rbp-4]
+10|   mov esi, 42
+10|   mov rdi, rax
+10|   call S::S(int)
+10|   lea rdx, [rbp-4]
+10|   mov rax, QWORD PTR [rbp-24]
+10|   mov rsi, rdx
+10|   mov rdi, rax
+10|   call S::S(S&&)
+10|   lea rax, [rbp-4]
+10|   mov rdi, rax
+10|   call S::~S() [complete object destructor]
+10|   nop
 [...]
 \end{lstlisting}

@@ -1,0 +1,19 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/x-qj8_}{\texttt{godbolt.org/z/x-qj8\_}}]
+struct S final {
+    int a, b, c;
+    
+    S(int a, int b, int c) noexcept:
+        a(a), b(b), c(c) {}
+
+    ~S() noexcept {}
+    
+    auto sum() noexcept {
+        return a + b + c;
+    }
+};
+
+int main() {
+    S s(1, 2, 3);
+    return s.sum();
+}
+\end{lstlisting}

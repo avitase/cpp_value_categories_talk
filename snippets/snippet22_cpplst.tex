@@ -1,0 +1,12 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/BPtLIg}{\texttt{godbolt.org/z/BPtLIg}}]
+struct S {
+    int x;
+};
+
+auto f() { S s{.x=42}; return s; }
+
+int main() {
+    S& s = f();
+    return s.x;
+}
+\end{lstlisting}
