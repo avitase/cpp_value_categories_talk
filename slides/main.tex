@@ -231,6 +231,8 @@ BENCHMARK(copy);
 \begin{frame}[plain,noframenumbering]
     \centering
     \scalebox{5}{\only<1>{Why?}\only<2>{RVO!}}
+
+    \only<2>{Ben Deane: \enquote{Perhaps the most important optimization the compiler does}}
 \end{frame}
 
 \begin{frame}[fragile]{x86-64 Assembly}
@@ -753,9 +755,27 @@ g():
 \end{frame}
 
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
+    \inputcpplisting{snippet25}
+    \begin{itemize}
+        \item \texttt{f1}: \only<1>{???}\only<2>{No RVO: the object has to be constructed inside the function}
+        \item \texttt{f2}: \only<1>{???}\only<2>{same as \texttt{f1}}
+        \item \texttt{f3}: \only<1>{???}\only<2>{same as \texttt{f1}}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{(N)RVO or no (N)RVO?}
     \inputcpplisting{snippet23}
 
     \only<2>{No RVO: \texttt{call S::S(S const\&)}}
+\end{frame}
+
+\begin{frame}[fragile]{(N)RVO or no (N)RVO?}
+    \inputcpplisting{snippet26}
+    \begin{itemize}
+        \item \texttt{f1}: \only<1>{???}\only<2>{RVO: type of ternary is prvalue}
+        \item \texttt{f2}: \only<1>{???}\only<2>{No RVO: type of ternary is lvalue reference}
+    \end{itemize}
+
 \end{frame}
 
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
