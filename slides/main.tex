@@ -141,11 +141,13 @@ BENCHMARK(mv_long_str);
 
     \vspace{5mm}
 
-    \scalebox{1.5}{$\hookrightarrow$ moving is not necessarily better than copying!}
+    \begin{center}
+        \scalebox{1.5}{$\hookrightarrow$ moving is not necessarily better than copying!}
+    \end{center}
 \end{frame}
 
 \begin{frame}[fragile]{Moving \texttt{std::map}}
-    \textbf{Did they forget \texttt{noexcept} for move ctor?} \only<2>{\textcolor{vertexDarkRed}{No!}}
+    \textbf{Did they forget to mark the move ctor \texttt{noexcept}?} \only<2>{\textcolor{vertexDarkRed}{No!}}
 
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
