@@ -789,6 +789,10 @@ g():
 \end{frame}
 
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
+    \begin{center}
+        \scalebox{.7}{(derived from \href{https://youtu.be/ZxWjii99yao}{CppCon 2019: \textit{Jason Turner} \enquote{Great C++ is\_trivial}})}
+    \end{center}
+
     \textbf{No (N)RVO in any of these examples!}
     \begin{lstlisting}
 S g1() { auto [s1, s2] = f(); return s1; } // copy
