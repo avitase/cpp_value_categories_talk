@@ -9,10 +9,10 @@ struct Data final {
     ~Data() { delete [] data; }
 };
 
-template <typename ...Ts>
-auto pack(Ts &&... t) {
-    Data<std::common_type_t<Ts...>> d(sizeof...(Ts));
-    auto p = d.data;
-    ((*p++ = std::forward<decltype(t)>(t)),...);
+auto init() {
+    Data<int> d(3);
+    d.data[0] = 1; d.data[1] = 2; d.data[2] = 3;
     return d;
 }
+
+int main() { return init().data[2]; }
