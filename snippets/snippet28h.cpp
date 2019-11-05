@@ -8,7 +8,7 @@ struct S {
 };
 
 void swap(S*& a, S*& b) {
-    S *tmp = a;
+    S* tmp = a;
     a = b;
     b = tmp;
 }
