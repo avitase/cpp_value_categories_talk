@@ -8,6 +8,102 @@
     \end{itemize}
 \end{frame}
 
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{Understanding References}
+\end{frame}
+
+\section{Understanding References}
+
+\begin{frame}[fragile]{Q: What is the output of the programs?}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+        \only<2>{A: \texttt{1 2}}
+
+    \begin{lstlisting}[language=python]
+class S:
+    def __init__(self, x):
+        self.x = x
+
+def swap1(a, b):
+    tmp = a
+    a = b
+    b = tmp
+
+def swap2(a, b):
+    b, a = a, b
+
+if __name__ == '__main__':
+    a, b = S(1), S(2)
+
+    swap1(a, b)
+    print(a.x, b.x)
+
+    swap2(a, b)
+    print(a.x, b.x)
+    \end{lstlisting}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \only<2>{A: \texttt{22}}
+
+            \inputcpplisting{snippet28a}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet28b}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{21}}
+    \inputcpplisting{snippet28b}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet28c}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aacc22}}
+    \inputcpplisting{snippet28c}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet28d}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aabcc21}}
+    \inputcpplisting{snippet28d}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet28e}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aa12}}
+    \inputcpplisting{snippet28e}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet28f}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aa12}}
+    \inputcpplisting{snippet28f}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet28g}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aa21}}
+    \inputcpplisting{snippet28g}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S*\&} to an rvalue of type \enquote{S*}}
+    \inputcpplisting{snippet28h}
+\end{frame}
+
 \section{Reading Assembly for fun and profit}
 
 \begin{frame}[fragile]{x86-64 Assembly}
@@ -43,6 +139,46 @@ vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
         \item \texttt{xmm0-15}
         \item \ldots
     \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Function Prologue \& Epilogue}
+    \begin{itemize}
+        \item Few lines of code at the beginning (\textit{prologue}) and end (\textit{epilogue}) of a function, which \textbf{prepare}
+        \begin{itemize}
+            \item the \textbf{stack} and 
+            \item \textbf{registers}
+        \end{itemize}
+        \item Not part of assembly: \textbf{convention} (defined \& interpreted differently by different OS and compilers)
+    \end{itemize}
+
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \textbf{Prologue}
+            \begin{lstlisting}[language={}]
+push rbp
+mov rbp, rsp
+sub rsp, N
+            \end{lstlisting}
+            alternatively
+            \begin{lstlisting}[language={}]
+enter N, 0
+            \end{lstlisting}
+            (reserve \texttt{N} bytes on stack for local use)
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \textbf{Epilogue}
+            \begin{lstlisting}[language={}]
+mov rsp, rbp
+pop rbp
+ret
+            \end{lstlisting}
+            alternatively
+            \begin{lstlisting}[language={}]
+leave
+ret
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}[plain]
