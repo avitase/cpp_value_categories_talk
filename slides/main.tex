@@ -230,204 +230,49 @@ BENCHMARK(copy);
 
 \begin{frame}[plain,noframenumbering]
     \centering
-    \scalebox{5}{\only<1>{Why?}\only<2>{RVO!}}
-
-    \only<2>{Ben Deane: \enquote{Perhaps the most important optimization the compiler does}}
-\end{frame}
-
-\begin{frame}[fragile]{x86-64 Assembly}
-    \begin{lstlisting}[language={}]
-instr
-instr dest_operand
-instr dest_operand, source_operand
-instr dest_operand, source_operand, source_operand
-    \end{lstlisting}
-
-    \begin{lstlisting}[language={}]
-ret                        ; return
-inc rax                    ; increment "rax" by one
-mov edx, 1234              ; set "edx" to the value 1234
-add rsi, rdi               ; "rsi" += "rdi"
-vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
-    \end{lstlisting}
-\end{frame}
-
-\begin{frame}{Registers (on Linux)}
-    Special purpose:
-    \begin{itemize}
-        \item return value: \texttt{rax} (64-bit) [\texttt{eax} (32-bit), \texttt{ax} (16-bit), \ldots]
-        \item 1st param: \texttt{rdi} (64-bit) [\texttt{edi} (32-bit)]
-        \item 2nd param: \texttt{rsi} (64-bit) [\texttt{esi} (32-bit)]
-        \item 3rd param: \texttt{rdx} (64-bit) [\texttt{edx} (32-bit)]
-        \item \ldots
-    \end{itemize}
-
-    Others:
-    \begin{itemize}
-        \item \texttt{rbx}, \texttt{rcx}, \texttt{rbp}, \texttt{r8-r14}, \texttt{rsp}
-        \item \texttt{xmm0-15}
-        \item \ldots
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{itemize}
-        \item EBP and ESP are both just 32-bit general-purpose registers. Although ESP has a special function, which is to act as the stack pointer, and it gets implicitly modified by certain instructions (e.g. push, pop, call). EBP by convention is typically used as a stack frame pointer within functions.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile,plain]
-    \centering
-    \begin{columns}
-        \begin{column}{.3\textwidth}
-            \begin{lstlisting}[language={}]
-leave
-            \end{lstlisting}
-        \end{column}
-        \begin{column}{.2\textwidth}
-            \centering
-            \scalebox{2.}{$\Leftrightarrow$}
-        \end{column}
-        \begin{column}{.3\textwidth}
-            \begin{lstlisting}[language={}]
-mov rsp, rbp
-pop rbp
-            \end{lstlisting}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[plain]
-    \begin{itemize}
-        \item adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. If function is a leaf function, adjusting \texttt{rsp} can be omitted. The offset (\texttt{x} in \texttt{sub rsp, x}) is objective of optimizations such as alignment.
-        \item ABI requires that the stack be aligned to 16 bytes when you place the call. Alternatively speaking, that it be off 16 bytes alignment as you get called (as CALL pushes 8 bytes).
-        \item \texttt{CALL} inserts 8 bytes in the stack, the return address
-        \item \texttt{RET} pops it and transfers control there
-        \item \texttt{CALL} = \texttt{PUSH} <address of next instruction; JMP <target>
-        \item Clang's choice is probably instruction size: \texttt{PUSH RAX} and \texttt{POP RCX} are each 1 byte; the GCC's \texttt{ADD} are 4 bytes.
-        \item the \texttt{MOVDQA} and \texttt{MOVAPS} instructions require 16-byte alignment.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{\texttt{lea dest, src}}
-    \begin{columns}
-        \begin{column}{.5\textwidth}
-            \begin{itemize}
-                \item \underline{l}oad \underline{e}ffective \underline{a}ddress
-                \item puts memory address from \texttt{src} into the destination \texttt{dest}
-                \item Example: \texttt{lea eax, [ebx+8]}
-                \begin{itemize}
-                    \item put \texttt{[ebx+8]} into \texttt{EAX}
-                    \item value of \texttt{EAX} after instruction: \texttt{0x00403A48}
-                \end{itemize}
-                \item \ldots whereas: \texttt{mov eax, [ebx+8]}
-                \begin{itemize}
-                    \item value of \texttt{EAX} after instruction: \texttt{0x0012C140}
-                \end{itemize}
-            \end{itemize}
-        \end{column}
-        \begin{column}{.5\textwidth}
-            \begin{Verbatim}
-           ┌──────────────────┐
-           │ Registers        │
-           ├──────────────────┤
-           │ EAX = 0x00000000 │ 
-           │ EBX = 0x00403A40 │ 
-           └──────────────────┘
-           ┌────────────┐
-           │ Memory     │
-           ├────────────┤
-0x00403A40 │ 0x7C81776F │ 
-0x00403A44 │ 0x7C911000 │ 
-0x00403A48 │ 0x0012C140 │ 
-0x00403A4C │ 0x7FFDB000 │ 
-           └────────────┘
-            \end{Verbatim}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputcpplisting{snippet5a}
-            
-            \only<2>{%
-            \inputasmlisting{snippet5b}}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet5a}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputcpplisting{snippet6a}
-
-            \only<2>{%
-            \inputasmlisting{snippet6b}}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet6a}
-        \end{column}
-    \end{columns}
-
-\end{frame}
-
-\section{Implicit Costs of \texttt{const \&}}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputcpplisting{snippet1a}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet1a}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputcpplisting{snippet2a}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputcpplisting{snippet2b}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet1a}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet2a}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet1b}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet2b}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]
-    \inputcpplisting{snippet8}
+    \scalebox{5}{Why?}
 \end{frame}
 
 \begin{frame}[fragile]{Does this code bother anyone?}
     \inputcpplisting{snippet3}
+\end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{2}{Interlude}
+
+    \scalebox{3}{What happens on \texttt{return}?}
+\end{frame}
+
+\section{What Happens on \texttt{return}?}
+
+\begin{frame}[fragile]{Will it compile?}
+    \inputcpplisting{snippet8}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit conversion to the function return type}
+    \inputcpplisting{snippet8}
+
+    \textbf{\textcolor{vertexDarkRed}{error:}} could not convert \enquote{42} from \enquote{int} to \enquote{B}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit conversion to the function return type}
+    \begin{columns}
+        \begin{column}{.55\textwidth}
+            \textbf{Implicit conversion}
+            \begin{itemize}
+                \item \ldots if ctor is \textbf{not} marked \texttt{explicit}
+                \item Examples: 
+                \begin{itemize}
+                    \item \href{https://en.cppreference.com/w/cpp/utility/optional/optional}{\texttt{std::optional(T\&\&)}}
+                    \item \href{https://en.cppreference.com/w/cpp/string/basic_string/basic_string}{\texttt{std::string(const char*)}}
+                \end{itemize}
+            \end{itemize}
+        \end{column}
+        \begin{column}{.35\textwidth}
+            \inputcpplisting{snippet27}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
@@ -462,6 +307,13 @@ pop rbp
     \inputcpplisting{snippet4b}
 \end{frame}
 
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{5}{\only<1>{Why?}\only<2>{RVO!}}
+
+    \only<2>{Ben Deane: \enquote{Perhaps the most important optimization the compiler does}}
+\end{frame}
+
 \begin{frame}{Copy Elision}
     \begin{columns}
         \begin{column}{.45\textwidth}
@@ -482,45 +334,11 @@ pop rbp
     \scalebox{1.5}{\textbf{Rule of thumb: avoid naming return values}}
 \end{frame}
 
-\begin{frame}{Implicit \texttt{move} on Return}
-    \begin{itemize}
-        \item Q: What happens on \texttt{return expression}?
-        \item A: The \texttt{expression} gets evaluated, the current function is terminated and the result of the \texttt{expression} is returned to the caller, \textbf{after implicit conversion} to the function return type.
-    \end{itemize}
-\end{frame}
+\section{RVO in Depth}
 
-\begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
-    \inputcpplisting{snippet9}
-
-    \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
-\end{frame}
-
-\begin{frame}[fragile]{Temporary object lifetime (extension)}
-    \inputcpplisting{snippet22}
-
-    \href{https://en.cppreference.com/w/cpp/language/lifetime}{\texttt{cppreference.com}}: \enquote{The lifetime of a temporary object may be extended by binding to a const lvalue reference or to an rvalue reference (since C++11).}
-\end{frame}
-
-\begin{frame}[fragile]{\texttt{decltype(auto)} or \texttt{auto \&\&}}
-    \texttt{auto} behaves much like a \texttt{T} in a function template:
-    \begin{lstlisting}
-template <typename T>
-void f(T && x) { ... };
-    \end{lstlisting}
-    \ldots \texttt{x} will \textbf{always} be a reference of some kind
-    \begin{lstlisting}
-// if `y` is lvalue, `x` is lvalue reference
-// if `y` is rvalue, `x` is rvalue reference
-f(y); // auto &&x = y;
-f<decltype(y)>(y); // decltype(auto) x = y;
-    \end{lstlisting}
-    whereas \texttt{decltype(auto)} is like explicitly specifying the type via \texttt{decltype(y)}:
-    \begin{lstlisting}
-decltype(auto) a = g();
-decltype(g()) b = g(); // equivalent
-    \end{lstlisting}
-
-    $\Rightarrow$ \texttt{auto\&\&} is always be a reference, \texttt{decltype(auto)} is not. \texttt{auto\&\&}'s lifetime extension for rvalues only works with local variables: binding a temporary return value to an \texttt{auto\&\&} creates a reference to a temporary which will dangle when the return values is destructed. 
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{RVO in Depth}
 \end{frame}
 
 \begin{frame}[fragile]{\texttt{C++} Objects in Assembly}
@@ -843,6 +661,240 @@ S g4() { auto&& [s1, s2] = f(); return std::move(s1); } // move
     \end{itemize}
 
     ${}^{\textcolor{vertexDarkRed}\star}$ \scalebox{.8}{\href{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1825r0.html}{\texttt{P1825R0}} (not yet implemented in GCC or Clang: \href{https://en.cppreference.com/w/cpp/compiler_support}{cppreference.com/w/cpp/compiler\_support})}
+\end{frame}
+
+
+\begin{frame}[fragile]{x86-64 Assembly}
+    \begin{lstlisting}[language={}]
+instr
+instr dest_operand
+instr dest_operand, source_operand
+instr dest_operand, source_operand, source_operand
+    \end{lstlisting}
+
+    \begin{lstlisting}[language={}]
+ret                        ; return
+inc rax                    ; increment "rax" by one
+mov edx, 1234              ; set "edx" to the value 1234
+add rsi, rdi               ; "rsi" += "rdi"
+vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}{Registers (on Linux)}
+    Special purpose:
+    \begin{itemize}
+        \item return value: \texttt{rax} (64-bit) [\texttt{eax} (32-bit), \texttt{ax} (16-bit), \ldots]
+        \item 1st param: \texttt{rdi} (64-bit) [\texttt{edi} (32-bit)]
+        \item 2nd param: \texttt{rsi} (64-bit) [\texttt{esi} (32-bit)]
+        \item 3rd param: \texttt{rdx} (64-bit) [\texttt{edx} (32-bit)]
+        \item \ldots
+    \end{itemize}
+
+    Others:
+    \begin{itemize}
+        \item \texttt{rbx}, \texttt{rcx}, \texttt{rbp}, \texttt{r8-r14}, \texttt{rsp}
+        \item \texttt{xmm0-15}
+        \item \ldots
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[plain]
+    \begin{itemize}
+        \item EBP and ESP are both just 32-bit general-purpose registers. Although ESP has a special function, which is to act as the stack pointer, and it gets implicitly modified by certain instructions (e.g. push, pop, call). EBP by convention is typically used as a stack frame pointer within functions.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile,plain]
+    \centering
+    \begin{columns}
+        \begin{column}{.3\textwidth}
+            \begin{lstlisting}[language={}]
+leave
+            \end{lstlisting}
+        \end{column}
+        \begin{column}{.2\textwidth}
+            \centering
+            \scalebox{2.}{$\Leftrightarrow$}
+        \end{column}
+        \begin{column}{.3\textwidth}
+            \begin{lstlisting}[language={}]
+mov rsp, rbp
+pop rbp
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[plain]
+    \begin{itemize}
+        \item adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. If function is a leaf function, adjusting \texttt{rsp} can be omitted. The offset (\texttt{x} in \texttt{sub rsp, x}) is objective of optimizations such as alignment.
+        \item ABI requires that the stack be aligned to 16 bytes when you place the call. Alternatively speaking, that it be off 16 bytes alignment as you get called (as CALL pushes 8 bytes).
+        \item \texttt{CALL} inserts 8 bytes in the stack, the return address
+        \item \texttt{RET} pops it and transfers control there
+        \item \texttt{CALL} = \texttt{PUSH} <address of next instruction; JMP <target>
+        \item Clang's choice is probably instruction size: \texttt{PUSH RAX} and \texttt{POP RCX} are each 1 byte; the GCC's \texttt{ADD} are 4 bytes.
+        \item the \texttt{MOVDQA} and \texttt{MOVAPS} instructions require 16-byte alignment.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{lea dest, src}}
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \begin{itemize}
+                \item \underline{l}oad \underline{e}ffective \underline{a}ddress
+                \item puts memory address from \texttt{src} into the destination \texttt{dest}
+                \item Example: \texttt{lea eax, [ebx+8]}
+                \begin{itemize}
+                    \item put \texttt{[ebx+8]} into \texttt{EAX}
+                    \item value of \texttt{EAX} after instruction: \texttt{0x00403A48}
+                \end{itemize}
+                \item \ldots whereas: \texttt{mov eax, [ebx+8]}
+                \begin{itemize}
+                    \item value of \texttt{EAX} after instruction: \texttt{0x0012C140}
+                \end{itemize}
+            \end{itemize}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \begin{Verbatim}
+           ┌──────────────────┐
+           │ Registers        │
+           ├──────────────────┤
+           │ EAX = 0x00000000 │ 
+           │ EBX = 0x00403A40 │ 
+           └──────────────────┘
+           ┌────────────┐
+           │ Memory     │
+           ├────────────┤
+0x00403A40 │ 0x7C81776F │ 
+0x00403A44 │ 0x7C911000 │ 
+0x00403A48 │ 0x0012C140 │ 
+0x00403A4C │ 0x7FFDB000 │ 
+           └────────────┘
+            \end{Verbatim}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet5a}
+            
+            \only<2>{%
+            \inputasmlisting{snippet5b}}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet5a}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet6a}
+
+            \only<2>{%
+            \inputasmlisting{snippet6b}}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet6a}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\section{Implicit Costs of \texttt{const \&}}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet1a}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet1a}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet2a}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet2b}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet1a}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet2a}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet1b}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet2b}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
+    \inputcpplisting{snippet9}
+
+    \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
+\end{frame}
+
+\begin{frame}[fragile]{Will it compile?}
+    \inputcpplisting{snippet22a}
+
+    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S\&} to an rvalue of type \enquote{S}}%
+\end{frame}
+
+\begin{frame}[fragile]{Will it invoke undefined behavior?}
+    \inputcpplisting{snippet22b}
+
+    \hfill \ldots binding a reference to a temporary???
+\end{frame}
+
+\begin{frame}[fragile]{Temporary object lifetime extension}
+    \inputcpplisting{snippet22b}
+
+    \href{https://en.cppreference.com/w/cpp/language/lifetime}{\texttt{cppreference.com}: \enquote{The lifetime of a temporary object may be extended by binding to a const lvalue reference or to an rvalue reference (since C++11).}}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{decltype(auto)} or \texttt{auto \&\&}}
+    \texttt{auto} behaves much like a \texttt{T} in a function template:
+    \begin{lstlisting}
+template <typename T>
+void f(T && x) { ... };
+    \end{lstlisting}
+    \ldots \texttt{x} will \textbf{always} be a reference of some kind
+    \begin{lstlisting}
+// if `y` is lvalue, `x` is lvalue reference
+// if `y` is rvalue, `x` is rvalue reference
+f(y); // auto &&x = y;
+f<decltype(y)>(y); // decltype(auto) x = y;
+    \end{lstlisting}
+    whereas \texttt{decltype(auto)} is like explicitly specifying the type via \texttt{decltype(y)}:
+    \begin{lstlisting}
+decltype(auto) a = g();
+decltype(g()) b = g(); // equivalent
+    \end{lstlisting}
+
+    $\Rightarrow$ \texttt{auto\&\&} is always be a reference, \texttt{decltype(auto)} is not. \texttt{auto\&\&}'s lifetime extension for rvalues only works with local variables: binding a temporary return value to an \texttt{auto\&\&} creates a reference to a temporary which will dangle when the return values is destructed. 
 \end{frame}
 
 \begin{frame}[fragile]{Forwarding Values and Preserving Value Category}

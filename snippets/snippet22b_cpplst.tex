@@ -1,4 +1,4 @@
-\begin{lstlisting}[title=\href{https://godbolt.org/z/pEgJ6W}{\texttt{godbolt.org/z/pEgJ6W}}]
+\begin{lstlisting}[title=\href{https://godbolt.org/z/uwZsO4}{\texttt{godbolt.org/z/uwZsO4}}]
 struct S {
     int x;
 };
@@ -9,7 +9,7 @@ auto f() {
 }
 
 int main() {
-    S& s = f();
+    const S& s = f();
     return s.x;
 }
 \end{lstlisting}
