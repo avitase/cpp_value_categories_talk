@@ -827,21 +827,22 @@ S g4() { auto&& [s1, s2] = f(); return std::move(s1); } // move
         (use \texttt{-Wpessimizing-move})
     \end{center}
 
-    \href{https://en.cppreference.com/w/cpp/language/return}{\textbf{Automatic move from local variables and parameters:}}
+    \href{https://en.cppreference.com/w/cpp/language/return}{\textbf{Automatic move from local variables and parameters \underline{if}:}}
     \begin{itemize}
-        \item Since \texttt{C++20}: \href{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1825r0.html}{\texttt{P1825R0}} (not yet implemented in GCC or Clang: \href{https://en.cppreference.com/w/cpp/compiler_support}{cppreference.com/w/cpp/compiler\_support})
-        \item if return expression names a variable whose type is either
+        \item return expression names a variable whose type is either
         \begin{itemize}
             \item an object type or (since \texttt{C++11})
-            \item a rvalue reference to object type (since \texttt{C++20})
+            \item a rvalue reference to object type (since \texttt{C++20}${}^{\textcolor{vertexDarkRed}\star}$)
         \end{itemize}
-        \item and that variable is declared
+        \item \ldots and that variable is declared
         \begin{itemize}
             \item in the body or
             \item as a parameter of
         \end{itemize}
-        \item the innermost enclosing function or lambda expression
+        \item \ldots the innermost enclosing function or lambda expression
     \end{itemize}
+
+    ${}^{\textcolor{vertexDarkRed}\star}$ \scalebox{.8}{\href{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1825r0.html}{\texttt{P1825R0}} (not yet implemented in GCC or Clang: \href{https://en.cppreference.com/w/cpp/compiler_support}{cppreference.com/w/cpp/compiler\_support})}
 \end{frame}
 
 \begin{frame}[fragile]{Forwarding Values and Preserving Value Category}
