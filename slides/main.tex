@@ -430,25 +430,35 @@ pop rbp
     \inputcpplisting{snippet3}
 \end{frame}
 
-\begin{frame}{Guaranteed Copy Elision}
-    \begin{itemize}
-        \item It only works because of the \st{guaranteed} accidentally copy elision in GCC (leak in Clang) TODO: named RVO (NRVO) is not guaranteed
-    \end{itemize}
-\end{frame}
-
 \begin{frame}[fragile]{Q: What is the output of the program?}
+    \begin{center}
+        Compiler flags: \texttt{-std=c++14 -fno-elide-constructors}
+    \end{center}
+
     \inputcpplisting{snippet4a}
 \end{frame}
 
 \begin{frame}[fragile]{A: \texttt{ac}, \texttt{acc}, \texttt{acc}}
+    \begin{center}
+        Compiler flags: \texttt{-std=c++14 -fno-elide-constructors}
+    \end{center}
+
     \inputcpplisting{snippet4a}
 \end{frame}
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
+    \begin{center}
+        Compiler flags: \texttt{-std=c++17}
+    \end{center}
+
     \inputcpplisting{snippet4b}
 \end{frame}
 
 \begin{frame}[fragile]{A: \texttt{a}, \texttt{a}, \texttt{a}}
+    \begin{center}
+        Compiler flags: \texttt{-std=c++17}
+    \end{center}
+
     \inputcpplisting{snippet4b}
 \end{frame}
 

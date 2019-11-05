@@ -1,4 +1,3 @@
-// -std=c++14 -fno-elide-constructors
 #include <iostream>
 
 struct S {
