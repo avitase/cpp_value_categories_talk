@@ -1,3 +1,10 @@
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{\texttt{std::move} in the wild}
+\end{frame}
+
+\section{\texttt{std::move} in the wild}
+
 \begin{frame}[fragile]{Moving \texttt{std::string}}
     \centering
     \scalebox{.7}{(derived from \href{https://youtu.be/oTMSgI1XjF8}{CppCon 2019: \textit{Ben Deane} \enquote{Everyday Efficiency: In-Place Construction (Back to Basics?)})}}
@@ -633,6 +640,13 @@ S g4() { auto&& [s1, s2] = f(); return std::move(s1); } // move
 
     \href{https://en.cppreference.com/w/cpp/language/lifetime}{\texttt{cppreference.com}: \enquote{The lifetime of a temporary object may be extended by binding to a const lvalue reference or to an rvalue reference (since C++11).}}
 \end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{Perfect Backwarding}
+\end{frame}
+
+\section{Perfect Backwarding}
 
 \begin{frame}[fragile]{Forwarding Values and Preserving Value Category}
     \centering
