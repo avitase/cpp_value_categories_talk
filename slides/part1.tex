@@ -354,3 +354,34 @@ decltype(g()) b = g(); // equivalent
 
     $\Rightarrow$ \texttt{auto\&\&} is always be a reference, \texttt{decltype(auto)} is not. \texttt{auto\&\&}'s lifetime extension for rvalues only works with local variables: binding a temporary return value to an \texttt{auto\&\&} creates a reference to a temporary which will dangle when the return values is destructed. 
 \end{frame}
+
+\begin{frame}[fragile]{Quick Bench: \href{http://quick-bench.com/7qTMMYSgUJG-lRg-B26ZX77vim0}{\texttt{tinyurl.com/y67sg7to}}}
+    \begin{lstlisting}
+std::vector<int> x(1000, 42);
+std::vector<int> y(1000, 42);
+for (auto _ : state) {
+    auto tmp = x;
+    x = y;
+    y = tmp;
+    benchmark::DoNotOptimize(x[345] + y[678]);
+}
+    \end{lstlisting}
+
+    \begin{lstlisting}
+std::vector<int> x(1000, 42);
+std::vector<int> y(1000, 42);
+for (auto _ : state) {
+    auto tmp = std::move(x);
+    x = std::move(y);
+    y = std::move(tmp);
+    benchmark::DoNotOptimize(x[345] + y[678]);
+}
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}{Quick Bench: \href{http://quick-bench.com/7qTMMYSgUJG-lRg-B26ZX77vim0}{\texttt{tinyurl.com/y67sg7to}}}
+    \centering
+
+    \includegraphics[height=.8\textheight]{benchmark_vec_mv.png}
+\end{frame}
+
