@@ -18,29 +18,22 @@
 \begin{frame}[fragile]{Q: What is the output of the programs?}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-        \only<2>{A: \texttt{1 2}}
+        \only<2>{A: \texttt{12}}
 
     \begin{lstlisting}[language=python]
+#!/usr/bin/env python3
+
 class S:
     def __init__(self, x):
         self.x = x
 
-def swap1(a, b):
-    tmp = a
-    a = b
-    b = tmp
-
-def swap2(a, b):
+def swap(a, b):
     b, a = a, b
 
 if __name__ == '__main__':
     a, b = S(1), S(2)
-
-    swap1(a, b)
-    print(a.x, b.x)
-
-    swap2(a, b)
-    print(a.x, b.x)
+    swap(a, b)
+    print(f'{a.x}{b.x}')
     \end{lstlisting}
         \end{column}
         \begin{column}{.45\textwidth}
