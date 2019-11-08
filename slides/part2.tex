@@ -623,24 +623,6 @@ S g4() { auto&& [s1, s2] = f(); return std::move(s1); } // move
     \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
 \end{frame}
 
-\begin{frame}[fragile]{Will it compile?}
-    \inputcpplisting{snippet22a}
-
-    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S\&} to an rvalue of type \enquote{S}}%
-\end{frame}
-
-\begin{frame}[fragile]{Will it invoke undefined behavior?}
-    \inputcpplisting{snippet22b}
-
-    \hfill \ldots binding a reference to a temporary???
-\end{frame}
-
-\begin{frame}[fragile]{Temporary object lifetime extension}
-    \inputcpplisting{snippet22b}
-
-    \href{https://en.cppreference.com/w/cpp/language/lifetime}{\texttt{cppreference.com}: \enquote{The lifetime of a temporary object may be extended by binding to a const lvalue reference or to an rvalue reference (since C++11).}}
-\end{frame}
-
 \begin{frame}[plain,noframenumbering]
     \centering
     \scalebox{3}{Perfect Backwarding}
