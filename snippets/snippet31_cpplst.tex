@@ -1,0 +1,15 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/tK34H9}{\texttt{godbolt.org/z/tK34H9}}]
+#include <iostream>
+#include <utility>
+
+struct S{};
+
+void f(const S&) { std::cout << 'a'; }
+void f(S&&) { std::cout << 'b'; }
+
+int main() {
+    S s;
+    f(s);            // prints 'a'
+    f(std::move(s)); // prints 'b'
+}
+\end{lstlisting}

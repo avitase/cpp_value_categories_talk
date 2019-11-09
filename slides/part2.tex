@@ -1,5 +1,83 @@
 \begin{frame}[plain,noframenumbering]
     \centering
+    \scalebox{3}{Dangling References}
+\end{frame}
+
+\section{Dangling references}
+
+\begin{frame}[fragile]{Will it compile?}
+    \inputcpplisting{snippet22a}
+
+    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S\&} to an rvalue of type \enquote{S}}%
+\end{frame}
+
+\begin{frame}[fragile]{Will it invoke undefined behavior?}
+    \inputcpplisting{snippet22b}
+
+    \hfill \ldots binding a reference to a temporary???
+\end{frame}
+
+\begin{frame}[fragile]{Temporary object lifetime extension}
+    \inputcpplisting{snippet22b}
+
+    \href{https://en.cppreference.com/w/cpp/language/lifetime}{\texttt{cppreference.com}: \enquote{The lifetime of a temporary object may be extended by binding to a const lvalue reference or to an rvalue reference (since C++11).}}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet29}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{a1b1a2xb2}}
+    \begin{columns}
+        \begin{column}{.55\textwidth}
+            \inputcpplisting{snippet29}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \textbf{Dangling reference!!!}
+            \begin{itemize}
+                \item lifetime extension only for result of the temporary expression, \textbf{not any sub-expression}
+                \item use \href{https://clang.llvm.org/docs/AddressSanitizer.html}{address sanitizer}!    
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{2.}{contrived?}
+\end{frame}
+
+\begin{frame}[fragile]{Reference lifetime extension}
+    \begin{center}
+        \scalebox{.7}{(derived from \href{https://abseil.io/tips/107}{\texttt{abseil.io}: Tip of the Week \#107: \enquote{Reference Lifetime Extension})}}
+    \end{center}
+
+    \begin{lstlisting}
+std::vector<std::string_view> explode(const std::string& s);
+
+for (std::string_view s: explode(str_cat("oo", "ps"))) { // WRONG!
+    [...]
+    \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \begin{columns}
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet30}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \only<2>{%
+            \textbf{Dangling reference!!!}
+            \begin{itemize}
+                \item \texttt{std::vector} needs to reallocate all the space the second time an element is pushed 
+                \item use \href{https://clang.llvm.org/docs/AddressSanitizer.html}{address sanitizer}!    
+            \end{itemize}}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
     \scalebox{3}{\texttt{std::move} in the wild}
 \end{frame}
 

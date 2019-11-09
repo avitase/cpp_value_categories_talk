@@ -97,6 +97,183 @@ if __name__ == '__main__':
     \inputcpplisting{snippet28h}
 \end{frame}
 
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{Value Categories}
+\end{frame}
+
+\section{Value Categories}
+
+\begin{frame}{Value categories with Venn diagrams}
+    \centering
+
+    \includegraphics[height=.8\textheight]{valcat.png}
+
+    \scalebox{.7}{(diagrams shamelessly stolen from \href{http://bajamircea.github.io/coding/cpp/2016/04/07/move-forward.html}{\texttt{bajamircea.github.io/coding/cpp/2016/04/07/move-forward.html}})}
+
+\end{frame}
+
+\begin{frame}[fragile]{Value categories with Venn diagrams}
+    \begin{center}
+        \scalebox{.7}{(diagrams shamelessly stolen from \href{http://bajamircea.github.io/coding/cpp/2016/04/07/move-forward.html}{\texttt{bajamircea.github.io/coding/cpp/2016/04/07/move-forward.html}})}
+    \end{center}
+    \begin{columns}
+        \begin{column}{.7\textwidth}
+            \begin{lstlisting}
+struct S{ int x; };
+
+S make_S(int x) {
+    S s{.x = x};
+    return s; // has no name after returning
+}
+
+int main() {
+    S a = make_S(42); // `a` is a lvalue
+                      // initialized with a prvalue
+
+    S b = std::move(a); // prepare to die, `a`!
+                        // now `a` became a xvalue
+
+    auto x = a.x; // ERROR: `a` is in an undefined state
+    a = make_S(13);
+    x = a.x; // fine!
+}
+            \end{lstlisting}
+        \end{column}
+        \begin{column}{.25\textwidth}
+            \only<1>{\includegraphics[width=\textwidth]{valcat1.png}}%
+            \only<2>{\includegraphics[width=\textwidth]{valcat2.png}}%
+            \only<3>{\includegraphics[width=\textwidth]{valcat3.png}}%
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Binding references to temporaries}
+    \begin{center}
+        \textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S*\&} to an rvalue of type \enquote{S*}
+    \end{center}
+    \begin{columns}
+        \begin{column}{.4\textwidth}
+            \begin{lstlisting}
+template <typename T>
+void swap(T& a, T&b) { ... }
+
+int main() {
+    S a{1};
+    S b{2};
+    swap(&a, &b);
+}
+            \end{lstlisting}
+        \end{column}
+        \begin{column}{.55\textwidth}
+            \begin{itemize}
+                \item Memory addresses are always rvalues!
+                \item One cannot refer to something that doesn't have a name\ldots
+                \item \ldots except it is a const reference (lifetime extension)
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{\texttt{std::move}}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{std::move}}
+    \begin{columns}
+        \begin{column}{.55\textwidth}
+            \inputcpplisting{snippet31}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \begin{itemize}
+                \item \texttt{std::move} creates xvalues
+                \item Syntax:
+                \begin{itemize}
+                    \item lvalue ref.: \texttt{S\&}
+                    \item rvalue ref.: \texttt{S\&\&}
+                \end{itemize}
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet33a}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{abac}}
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \inputcpplisting{snippet33a}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \begin{itemize}
+                \item \texttt{S s1}: no surprise
+                \item \texttt{S s2(s1)}: no surprise
+                \item \texttt{S s3(S\{\})}: \href{https://en.cppreference.com/w/cpp/language/copy_elision}{\textit{mandatory} copy elision (initializer is prvalue of the same class type})
+                \item \texttt{S s4(std::move(s1)}: forced move construction
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet33b}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{a2a33}}
+    \inputcpplisting{snippet33b}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet33c}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \begin{columns}
+        \begin{column}{.46\textwidth}
+            \inputcpplisting{snippet33c}
+        \end{column}
+        \begin{column}{.49\textwidth}
+            \textbf{Compile-time error} (in all three cases)
+            \begin{itemize}
+                \item \texttt{f(s1)}: ambiguity between \texttt{2} and \texttt{1}
+                \item \texttt{f(S\{\})}: ambiguity between \texttt{2} and \texttt{3}
+                \item \texttt{f(std::move(s1)}: same as \texttt{f(S{})}
+            \end{itemize}
+
+            $\hookrightarrow$ compiler cannot differentiate between copy and reference overloads! (neither lvalue, nor rvalue)
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet33d}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{23aa}}
+    \begin{columns}
+        \begin{column}{.46\textwidth}
+            \inputcpplisting{snippet33d}
+        \end{column}
+        \begin{column}{.49\textwidth}
+            \begin{itemize}
+                \item \texttt{S\&\&}: object that nobody cares about anymore and which will die soon (cf. lifetime extension!)
+                \item \texttt{std::move} does not actually kill, but makes the object look like a dying object
+            \end{itemize}
+
+            \begin{center}
+                \begin{overpic}[width=.8\textwidth]{arya.png}
+                    \put(10,10){\color{white}A rvalue has no name} 
+                \end{overpic}
+            \end{center}
+        \end{column}
+    \end{columns}
+
+    {\footnotesize \textbf{NB:} a rvalue ref behaves like a lvalue ref except that it can bind to a temporary (an rvalue), whereas one cannot bind a (non const) lvalue ref to a rvalue.}
+\end{frame}
+
 \section{Reading Assembly for fun and profit}
 
 \begin{frame}[fragile]{x86-64 Assembly}
@@ -376,58 +553,4 @@ for (auto _ : state) {
     \centering
 
     \includegraphics[height=.8\textheight]{benchmark_vec_mv.png}
-\end{frame}
-\begin{frame}[fragile]{Will it compile?}
-    \inputcpplisting{snippet22a}
-
-    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S\&} to an rvalue of type \enquote{S}}%
-\end{frame}
-
-\begin{frame}[fragile]{Will it invoke undefined behavior?}
-    \inputcpplisting{snippet22b}
-
-    \hfill \ldots binding a reference to a temporary???
-\end{frame}
-
-\begin{frame}[fragile]{Temporary object lifetime extension}
-    \inputcpplisting{snippet22b}
-
-    \href{https://en.cppreference.com/w/cpp/language/lifetime}{\texttt{cppreference.com}: \enquote{The lifetime of a temporary object may be extended by binding to a const lvalue reference or to an rvalue reference (since C++11).}}
-\end{frame}
-
-\begin{frame}[fragile]{Q: What is the output of the program?}
-    \inputcpplisting{snippet29}
-\end{frame}
-
-\begin{frame}[fragile]{A: \texttt{a1b1a2xb2}}
-    \begin{columns}
-        \begin{column}{.55\textwidth}
-            \inputcpplisting{snippet29}
-        \end{column}
-        \begin{column}{.4\textwidth}
-            \textbf{Dangling reference!!!}
-            \begin{itemize}
-                \item lifetime extension only for result of the temporary expression, \textbf{not any sub-expression}
-                \item use \href{https://clang.llvm.org/docs/AddressSanitizer.html}{address sanitizer}!    
-            \end{itemize}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[plain,noframenumbering]
-    \centering
-    \scalebox{2.}{contrived?}
-\end{frame}
-
-\begin{frame}[fragile]{Reference lifetime extension}
-    \begin{center}
-        \scalebox{.7}{(derived from \href{https://abseil.io/tips/107}{\texttt{abseil.io}: Tip of the Week \#107: \enquote{Reference Lifetime Extension})}}
-    \end{center}
-
-    \begin{lstlisting}
-std::vector<std::string_view> explode(const std::string& s);
-
-for (std::string_view s: explode(str_cat("oo", "ps"))) { // WRONG!
-    [...]
-    \end{lstlisting}
 \end{frame}
