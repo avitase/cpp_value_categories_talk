@@ -1,6 +1,6 @@
 .PHONY: all clean snippets
 
-PDF = slides/build/icsc2020_nmeinert.pdf
+PDF = icsc2020_nmeinert.pdf
 
 all: $(PDF)
 
