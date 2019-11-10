@@ -1,13 +1,3 @@
-\section{Why?}
-
-\begin{frame}{A word of warning}
-    \textbf{Disclaimer} 
-    \begin{itemize}
-        \item This talks is mainly about hounding (unnecessary) copy ctors
-        \item In case you don't care: \blockquote[Scott Meyer]{If you’re not at all interested in performance, shouldn’t you be in the Python room down the hall?}
-    \end{itemize}
-\end{frame}
-
 \begin{frame}[plain,noframenumbering]
     \centering
     \scalebox{3}{Understanding References}
@@ -128,11 +118,11 @@ S make_S(int x) {
 }
 
 int main() {
-    S a = make_S(42); // `a` is a lvalue
+    S a = make_S(42); // `a` is an lvalue
                       // initialized with a prvalue
 
     S b = std::move(a); // prepare to die, `a`!
-                        // now `a` became a xvalue
+                        // now `a` became an xvalue
 
     auto x = a.x; // ERROR: `a` is in an undefined state
     a = make_S(13);
@@ -168,7 +158,7 @@ int main() {
         \begin{column}{.55\textwidth}
             \begin{itemize}
                 \item Memory addresses are always rvalues!
-                \item One cannot refer to something that doesn't have a name\ldots
+                \item One cannot refer to something that doesn't has a name\ldots
                 \item \ldots except it is a const reference (lifetime extension)
             \end{itemize}
         \end{column}
@@ -265,51 +255,212 @@ int main() {
 
             \begin{center}
                 \begin{overpic}[width=.8\textwidth]{arya.png}
-                    \put(10,10){\color{white}A rvalue has no name} 
+                    \put(10,10){\color{white}An rvalue has no name} 
                 \end{overpic}
             \end{center}
         \end{column}
     \end{columns}
 
-    {\footnotesize \textbf{NB:} a rvalue ref behaves like a lvalue ref except that it can bind to a temporary (an rvalue), whereas one cannot bind a (non const) lvalue ref to a rvalue.}
+    {\footnotesize \textbf{NB:} an rvalue ref behaves like an lvalue ref except that it can bind to a temporary (an rvalue), whereas one cannot bind a (non const) lvalue ref to an rvalue.}
 \end{frame}
 
-\section{Reading Assembly for fun and profit}
+\begin{frame}[fragile]{\texttt{std::move}}
+    \begin{columns}
+        \begin{column}{.55\textwidth}
+            \inputcpplisting{snippet34}
+        \end{column}
+        \begin{column}{.4\textwidth}
+            \textbf{So what does \texttt{std::move}?}
+            \begin{itemize}
+                \item does not \textit{move}
+                \item does not destroy
+                \item does nothing at all during runtime
+                \item \textbf{unconditionally casts} its argument to an rvalue
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
 
-\begin{frame}[fragile]{x86-64 Assembly}
-    \begin{lstlisting}[language={}]
-instr
-instr dest_operand
-instr dest_operand, source_operand
-instr dest_operand, source_operand, source_operand
+\begin{frame}[fragile]{Quick Bench: \href{http://quick-bench.com/7qTMMYSgUJG-lRg-B26ZX77vim0}{\texttt{tinyurl.com/y67sg7to}}}
+    \begin{lstlisting}
+std::vector<int> x(1000, 42);
+std::vector<int> y(1000, 42);
+for (auto _ : state) {
+    auto tmp = x;
+    x = y;
+    y = tmp;
+    benchmark::DoNotOptimize(x[345] + y[678]);
+}
     \end{lstlisting}
 
-    \begin{lstlisting}[language={}]
-ret                        ; return
-inc rax                    ; increment "rax" by one
-mov edx, 1234              ; set "edx" to the value 1234
-add rsi, rdi               ; "rsi" += "rdi"
-vpaddd ymm1, ymm2, ymm0    ; "ymm1" = "ymm2" + "ymm0"
+    \begin{lstlisting}
+std::vector<int> x(1000, 42);
+std::vector<int> y(1000, 42);
+for (auto _ : state) {
+    auto tmp = std::move(x);
+    x = std::move(y);
+    y = std::move(tmp);
+    benchmark::DoNotOptimize(x[345] + y[678]);
+}
     \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Registers (on Linux)}
-    Special purpose:
-    \begin{itemize}
-        \item return value: \texttt{rax} (64-bit) [\texttt{eax} (32-bit), \texttt{ax} (16-bit), \ldots]
-        \item 1st param: \texttt{rdi} (64-bit) [\texttt{edi} (32-bit)]
-        \item 2nd param: \texttt{rsi} (64-bit) [\texttt{esi} (32-bit)]
-        \item 3rd param: \texttt{rdx} (64-bit) [\texttt{edx} (32-bit)]
-        \item \ldots
-    \end{itemize}
+\begin{frame}{Quick Bench: \href{http://quick-bench.com/7qTMMYSgUJG-lRg-B26ZX77vim0}{\texttt{tinyurl.com/y67sg7to}}}
+    \centering
 
-    Others:
-    \begin{itemize}
-        \item \texttt{rbx}, \texttt{rcx}, \texttt{rbp}, \texttt{r8-r14}, \texttt{rsp}
-        \item \texttt{xmm0-15}
-        \item \ldots
-    \end{itemize}
+    \includegraphics[height=.8\textheight]{benchmark_vec_mv.png}
 \end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{Universal References}
+\end{frame}
+
+\section{Universal References}
+
+\begin{frame}[fragile]{Rvalue ref. or no rvalue ref.?}
+    Rvalue refs are declared using \enquote{\&\&}: reasonable to assume that the presence of \enquote{\&\&} in a type declaration indicates an rvalue reference?
+    \only<2>{\textbf{No!}}
+    \begin{columns}
+        \begin{column}{.45\textwidth}
+            \begin{lstlisting}[numbers=none]
+struct S{};
+
+S&& s = S{};                // (1)
+
+auto&& s2 = s;              // (2)
+
+void f(S&& s);              // (3)
+
+template <typename T>
+void f(T&& t);              // (4)
+
+template <typename T>
+void f(const T&& t);        // (5)
+
+template <typename T>
+void f(std::vector<T>&& v); // (6)
+            \end{lstlisting}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \textbf{Does \enquote{\texttt{\&\&}} mean rvalue reference?}
+            \begin{itemize}
+                \item \texttt{(1)}: \only<1>{???}\only<2>{yes}
+                \item \texttt{(2)}: \only<1>{???}\only<2>{no}
+                \item \texttt{(3)}: \only<1>{???}\only<2>{yes}
+                \item \texttt{(4)}: \only<1>{???}\only<2>{no}
+                \item \texttt{(5)}: \only<1>{???}\only<2>{yes}
+                \item \texttt{(6)}: \only<1>{???}\only<2>{yes}
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Universal references}
+    \begin{columns}
+        \begin{column}{.5\textwidth}
+            \textbf{Universal references${}^{\color{vertexDarkRed}\star}$}
+            \begin{itemize}
+                \item Syntax (\texttt{x} is a universal reference):
+                \begin{itemize}
+                    \item \texttt{auto\&\& x}
+                    \item \texttt{template <typename T>} \texttt{f(T\&\& x\ldots}
+                \end{itemize}
+                \item Rule of thumb: substitute fully qualified type into \texttt{auto} or \texttt{T} and reduce:
+                \begin{itemize}
+                    \item \texttt{\&\&} $\mapsto$ \texttt{\&\&} 
+                    \item \texttt{\&\&\&} $\mapsto$ \texttt{\&} 
+                    \item \texttt{\&\&\&\&} $\mapsto$ \texttt{\&\&} 
+                \end{itemize}
+            \end{itemize}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \begin{lstlisting}[numbers=none]
+std::vector<S> v;
+auto&& s = v[0]; // S&&& -> S&
+
+auto&& s2 = S{}; // S&&&& -> S&&
+auto&& s3 = s2;  // S&&&  -> S&
+
+// S&&&& -> S&&
+auto&& s3 = std::move(s2);
+            \end{lstlisting}
+        \end{column}
+    \end{columns}
+
+    \vspace{5mm}
+
+    \footnotesize ${}^{\color{vertexDarkRed}\star}$ \textit{Universal reference}: term introduced by Scott Meyers
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet35a}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{abb}}
+    \inputcpplisting{snippet35a}
+
+    \hfill \ldots how to preserve the value category?
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet37}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{aba}}
+    \inputcpplisting{snippet37}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet38}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{abaa}}
+    \inputcpplisting{snippet38}
+\end{frame}
+
+\begin{frame}[fragile]{Perfect forwarding}
+    \centering
+    \scalebox{1.5}{How do we fuse these implementations?}
+
+    \begin{lstlisting}
+// if `t` is an lvalue of type `S`
+S& forward(S& t) {
+    return t;
+}
+
+// if `t` is an rvalue of type `S`
+S&& forward(S& t) { // not `S&&`!
+    return std::move(t); // static_cast<S&&>(t)
+}
+    \end{lstlisting}
+
+    \inputcpplisting{snippet36}
+\end{frame}
+
+\begin{frame}[fragile]{Q: What is the output of the program?}
+    \inputcpplisting{snippet35b}
+\end{frame}
+
+\begin{frame}[fragile]{A: \texttt{abc}}
+    \inputcpplisting{snippet35b}
+    \textbf{Rule of thumb:} Use \texttt{std::move} for rvalues and \texttt{std::forward} for universal references
+\end{frame}
+
+\begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
+    \inputcpplisting{snippet9}
+
+    \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
+\end{frame}
+
+\begin{frame}[plain,noframenumbering]
+    \centering
+    \scalebox{3}{Reading x86-64 Assembly}
+
+    \scalebox{2}{\ldots for fun and profit}
+\end{frame}
+
+\section{Reading assembly for fun and profit}
 
 \begin{frame}[fragile]{Function Prologue \& Epilogue}
     \begin{itemize}
@@ -351,59 +502,49 @@ ret
     \end{columns}
 \end{frame}
 
-\begin{frame}[plain]
-    \begin{itemize}
-        \item EBP and ESP are both just 32-bit general-purpose registers. Although ESP has a special function, which is to act as the stack pointer, and it gets implicitly modified by certain instructions (e.g. push, pop, call). EBP by convention is typically used as a stack frame pointer within functions.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile,plain]
-    \centering
+\begin{frame}[fragile]{Stack frame for function call}
     \begin{columns}
-        \begin{column}{.3\textwidth}
-            \begin{lstlisting}[language={}]
-leave
-            \end{lstlisting}
+        \begin{column}{.4\textwidth}
+            \begin{itemize}
+                \item \texttt{CALL} = \texttt{PUSH} \textit{address of next instruction} + \texttt{JMP} \textit{target}
+                \item \texttt{RET} pops return address and transfers control there
+                \item pass arguments 1 \ldots 6 in registers (\texttt{rsi}, \texttt{rdx}, \ldots)
+            \end{itemize}
         \end{column}
-        \begin{column}{.2\textwidth}
-            \centering
-            \scalebox{2.}{$\Leftrightarrow$}
-        \end{column}
-        \begin{column}{.3\textwidth}
-            \begin{lstlisting}[language={}]
-mov rsp, rbp
-pop rbp
-            \end{lstlisting}
+        \begin{column}{.6\textwidth}
+            \begin{Verbatim}
+┌──────────────┐
+│ ...          │
+│ 8th Argument │ (rbp + 24)
+│ 7th Argument │ (rbp + 16)
+├──────────────┤
+│ rip          │ (return address)
+│ rbp          │ (rbp)
+├──────────────┤
+│ rbx          │
+│ r12          │
+│ r13          │ (rsp)
+└──────────────┘
+            \end{Verbatim}
+            (stack frame for function call with 8 arguments and local registers \texttt{rbx}, \texttt{r12} and \texttt{r13})
         \end{column}
     \end{columns}
 \end{frame}
 
-\begin{frame}[plain]
-    \begin{itemize}
-        \item adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. If function is a leaf function, adjusting \texttt{rsp} can be omitted. The offset (\texttt{x} in \texttt{sub rsp, x}) is objective of optimizations such as alignment.
-        \item ABI requires that the stack be aligned to 16 bytes when you place the call. Alternatively speaking, that it be off 16 bytes alignment as you get called (as CALL pushes 8 bytes).
-        \item \texttt{CALL} inserts 8 bytes in the stack, the return address
-        \item \texttt{RET} pops it and transfers control there
-        \item \texttt{CALL} = \texttt{PUSH} <address of next instruction; JMP <target>
-        \item Clang's choice is probably instruction size: \texttt{PUSH RAX} and \texttt{POP RCX} are each 1 byte; the GCC's \texttt{ADD} are 4 bytes.
-        \item the \texttt{MOVDQA} and \texttt{MOVAPS} instructions require 16-byte alignment.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{\texttt{lea dest, src}}
+\begin{frame}[fragile]{\texttt{lea} vs. \texttt{mov}}
     \begin{columns}
         \begin{column}{.5\textwidth}
             \begin{itemize}
-                \item \underline{l}oad \underline{e}ffective \underline{a}ddress
+                \item \texttt{lea}: \underline{l}oad \underline{e}ffective \underline{a}ddress
                 \item puts memory address from \texttt{src} into the destination \texttt{dest}
                 \item Example: \texttt{lea eax, [ebx+8]}
                 \begin{itemize}
-                    \item put \texttt{[ebx+8]} into \texttt{EAX}
-                    \item value of \texttt{EAX} after instruction: \texttt{0x00403A48}
+                    \item put \texttt{[ebx+8]} into \texttt{eax}
+                    \item value of \texttt{eax} after instruction: \texttt{0x00403A48}
                 \end{itemize}
                 \item \ldots whereas: \texttt{mov eax, [ebx+8]}
                 \begin{itemize}
-                    \item value of \texttt{EAX} after instruction: \texttt{0x0012C140}
+                    \item value of \texttt{eax} after instruction: \texttt{0x0012C140}
                 \end{itemize}
             \end{itemize}
         \end{column}
@@ -428,7 +569,7 @@ pop rbp
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
+\begin{frame}[fragile]{Reading assembly for fun and profit}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputcpplisting{snippet5a}
@@ -442,7 +583,7 @@ pop rbp
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Reading Assembly for Fun and Profit}
+\begin{frame}[fragile]{Reading assembly for fun and profit}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputcpplisting{snippet6a}
@@ -457,9 +598,7 @@ pop rbp
 
 \end{frame}
 
-\section{Implicit Costs of \texttt{const \&}}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
+\begin{frame}[fragile]{Reading assembly for fun and profit}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputcpplisting{snippet1a}
@@ -469,6 +608,9 @@ pop rbp
         \end{column}
     \end{columns}
 \end{frame}
+
+
+\section{Implicit Costs of \texttt{const \&}}
 
 \begin{frame}[fragile]{Implicit Costs of using \texttt{const \&}}
     \begin{columns}[t]
@@ -496,61 +638,13 @@ pop rbp
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputasmlisting{snippet1b}
+
+            \footnotesize
+            \only<2>{\textbf{NB \#1:} adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. (Adjusting \texttt{rsp} can be ommitted in leaf functions.)}
+            \only<3>{\textbf{NB \#2:} Offset \texttt{x} in \texttt{sub rsp, x} is objective of optimizations such as alignment: ABI requires stack to be aligned to 16 bytes.}
         \end{column}
         \begin{column}{.45\textwidth}
             \inputasmlisting{snippet2b}
         \end{column}
     \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{\texttt{decltype(auto)} or \texttt{auto \&\&}}
-    \texttt{auto} behaves much like a \texttt{T} in a function template:
-    \begin{lstlisting}
-template <typename T>
-void f(T && x) { ... };
-    \end{lstlisting}
-    \ldots \texttt{x} will \textbf{always} be a reference of some kind
-    \begin{lstlisting}
-// if `y` is lvalue, `x` is lvalue reference
-// if `y` is rvalue, `x` is rvalue reference
-f(y); // auto &&x = y;
-f<decltype(y)>(y); // decltype(auto) x = y;
-    \end{lstlisting}
-    whereas \texttt{decltype(auto)} is like explicitly specifying the type via \texttt{decltype(y)}:
-    \begin{lstlisting}
-decltype(auto) a = g();
-decltype(g()) b = g(); // equivalent
-    \end{lstlisting}
-
-    $\Rightarrow$ \texttt{auto\&\&} is always be a reference, \texttt{decltype(auto)} is not. \texttt{auto\&\&}'s lifetime extension for rvalues only works with local variables: binding a temporary return value to an \texttt{auto\&\&} creates a reference to a temporary which will dangle when the return values is destructed. 
-\end{frame}
-
-\begin{frame}[fragile]{Quick Bench: \href{http://quick-bench.com/7qTMMYSgUJG-lRg-B26ZX77vim0}{\texttt{tinyurl.com/y67sg7to}}}
-    \begin{lstlisting}
-std::vector<int> x(1000, 42);
-std::vector<int> y(1000, 42);
-for (auto _ : state) {
-    auto tmp = x;
-    x = y;
-    y = tmp;
-    benchmark::DoNotOptimize(x[345] + y[678]);
-}
-    \end{lstlisting}
-
-    \begin{lstlisting}
-std::vector<int> x(1000, 42);
-std::vector<int> y(1000, 42);
-for (auto _ : state) {
-    auto tmp = std::move(x);
-    x = std::move(y);
-    y = std::move(tmp);
-    benchmark::DoNotOptimize(x[345] + y[678]);
-}
-    \end{lstlisting}
-\end{frame}
-
-\begin{frame}{Quick Bench: \href{http://quick-bench.com/7qTMMYSgUJG-lRg-B26ZX77vim0}{\texttt{tinyurl.com/y67sg7to}}}
-    \centering
-
-    \includegraphics[height=.8\textheight]{benchmark_vec_mv.png}
 \end{frame}

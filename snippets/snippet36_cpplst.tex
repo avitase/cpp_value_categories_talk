@@ -1,0 +1,8 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/k997Zh}{\texttt{godbolt.org/z/k997Zh}}]
+#include <type_traits>
+
+template <typename T>
+T&& forward(std::remove_reference_t<T>& t) {
+    return static_cast<T&&>(t);
+}
+\end{lstlisting}

@@ -359,7 +359,7 @@ BENCHMARK(copy);
             \end{itemize}
         \end{column}
     \end{columns}
-    \ldots even if the copy/move constructor and the destructor have observable side-effects!
+    \ldots even if the copy/move constructor and the destructor has observable side-effects!
     \vspace{.5cm}
 
     \centering
@@ -682,7 +682,7 @@ S g4() { auto&& [s1, s2] = f(); return std::move(s1); } // move
         \item return expression names a variable whose type is either
         \begin{itemize}
             \item an object type or (since \texttt{C++11})
-            \item a rvalue reference to object type (since \texttt{C++20}${}^{\textcolor{vertexDarkRed}\star}$)
+            \item an rvalue reference to object type (since \texttt{C++20}${}^{\textcolor{vertexDarkRed}\star}$)
         \end{itemize}
         \item \ldots and that variable is declared
         \begin{itemize}
@@ -693,12 +693,6 @@ S g4() { auto&& [s1, s2] = f(); return std::move(s1); } // move
     \end{itemize}
 
     ${}^{\textcolor{vertexDarkRed}\star}$ \scalebox{.8}{\href{http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1825r0.html}{\texttt{P1825R0}} (not yet implemented in GCC or Clang: \href{https://en.cppreference.com/w/cpp/compiler_support}{cppreference.com/w/cpp/compiler\_support})}
-\end{frame}
-
-\begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
-    \inputcpplisting{snippet9}
-
-    \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
 \end{frame}
 
 \begin{frame}[plain,noframenumbering]
