@@ -16,5 +16,5 @@ struct Target {
 
 int main() {
     ResourceManager rm;
-    Target(rm.visit([](Resource &r) -> Resource { return r; }));
+    Target(rm.visit([](Resource& r) -> Resource { return r; }));
 }

@@ -730,7 +730,7 @@ auto&& visit(auto visitor) {
     \textbf{A:} Dangling reference for
 
     \centering
-    \texttt{visit([](Resource \&r) -> Resource \{ return r; \}));}
+    \texttt{visit([](Resource\& r) -> Resource \{ return r; \}));}
 
     \vspace{.5cm}
 
@@ -781,9 +781,9 @@ Resource&& visit(auto visitor) {
     \end{lstlisting}
 
     \begin{lstlisting}
-Target(rm.visit([](Resource &r) -> Resource { return r; }));
-Target(rm.visit([](Resource &r) -> Resource& { return r; }));
-Target(rm.visit([](Resource &r) -> Resource&& { return std::move(r); }));
+Target(rm.visit([](Resource& r) -> Resource { return r; }));
+Target(rm.visit([](Resource& r) -> Resource& { return r; }));
+Target(rm.visit([](Resource& r) -> Resource&& { return std::move(r); }));
     \end{lstlisting}
 \end{frame}
 

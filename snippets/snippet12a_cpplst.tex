@@ -1,4 +1,4 @@
-\begin{lstlisting}[title=\href{https://godbolt.org/z/bGe-x9}{\texttt{godbolt.org/z/bGe-x9}}]
+\begin{lstlisting}[title=\href{https://godbolt.org/z/T638sY}{\texttt{godbolt.org/z/T638sY}}]
 #include <iostream>
 
 struct Resource {};
@@ -17,6 +17,6 @@ struct Target {
 
 int main() {
     ResourceManager rm;
-    Target(rm.visit([](Resource &r) -> Resource { return r; }));
+    Target(rm.visit([](Resource& r) -> Resource { return r; }));
 }
 \end{lstlisting}
