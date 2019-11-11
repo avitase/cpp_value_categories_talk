@@ -11,6 +11,9 @@ slides/build/main.pdf: $(shell find slides -name '*.tex') $(shell find img -name
 	cd slides && mkdir -p build && \
 	latexmk -halt-on-error -pdflatex=lualatex -pdf -jobname=build/main main.tex
 
+snippets:
+	make -f Makefile.snippets
+
 clean:
 	make clean -f Makefile.snippets
 	rm -f slides/build/*
