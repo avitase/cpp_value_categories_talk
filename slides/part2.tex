@@ -641,9 +641,9 @@ g():
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
     \inputcpplisting{snippet24}
     \begin{itemize}
-        \item \texttt{g1}: \only<1>{???}\only<2>{no RVO: \texttt{call S::S(S\&\&)}}
+        \item \texttt{g1}: \only<1>{???}\only<2>{no RVO: \texttt{call S::S(S const\&)}}
         \item \texttt{g2}: \only<1>{???}\only<2>{same as \texttt{g1}}
-        \item \texttt{g3}: \only<1>{???}\only<2>{no RVO: \texttt{call S::S(const S\&)}}
+        \item \texttt{g3}: \only<1>{???}\only<2>{no RVO: \texttt{call S::S(S\&\&)}}
         \item \texttt{g4}: \only<1>{???}\only<2>{same as \texttt{g3}}
     \end{itemize}
 \end{frame}

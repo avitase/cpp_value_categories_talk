@@ -1,7 +1,7 @@
-\begin{lstlisting}[title=\href{https://godbolt.org/z/mU9UH9}{\texttt{godbolt.org/z/mU9UH9}}]
+\begin{lstlisting}[title=\href{https://godbolt.org/z/m26mJX}{\texttt{godbolt.org/z/m26mJX}}]
 void side_effect();
 
-int f(const int &x) {
+int f(const int& x) {
     auto a = x;
     side_effect();
     return a - x;
