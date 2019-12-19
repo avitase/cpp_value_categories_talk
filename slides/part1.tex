@@ -648,3 +648,37 @@ ret
         \end{column}
     \end{columns}
 \end{frame}
+
+\begin{frame}[fragile]{Will it compile?}
+    \begin{columns}
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet39}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \only<2>{%
+            \textbf{\textcolor{vertexDarkRed}{No!}}
+            \begin{itemize}
+                \item Constructor takes by reference
+                \item References to automatic storage objects are not constant expressions!
+                \item Solutions?
+            \end{itemize}}
+        \end{column}
+    \end{columns}
+
+    \vspace{1cm}
+
+    \begin{lstlisting}
+template <std::size_t N>
+constexpr span(const std::array<value_type, N>& arr) noexcept;
+    \end{lstlisting}
+    \href{https://en.cppreference.com/w/cpp/container/span/span}{\texttt{cppreference.com/w/cpp/container/span/span}}
+\end{frame}
+
+\begin{frame}[fragile]{Will it compile?}
+    \inputcpplisting{snippet40}
+\end{frame}
+
+\begin{frame}[fragile]{Nota bene \ldots}
+    this will work though, since reference / pointer does not \textit{escape} constant expression \ldots
+    \inputcpplisting{snippet41}
+\end{frame}

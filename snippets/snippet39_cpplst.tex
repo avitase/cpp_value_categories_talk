@@ -1,0 +1,11 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/3CIQW_}{\texttt{godbolt.org/z/3CIQW\_}}]
+#include <array>
+#include <span>
+
+int main() {
+    constexpr std::array x{
+        4, 8, 15, 16, 23, 42
+    };
+    constexpr std::span x_view{x};
+}
+\end{lstlisting}
