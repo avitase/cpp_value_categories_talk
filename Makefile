@@ -1,4 +1,4 @@
-.PHONY: all clean snippets
+.PHONY: all clean snippets slides/build/main.pdf
 
 PDF = slides.pdf
 
@@ -7,9 +7,9 @@ all: $(PDF)
 $(PDF): slides/build/main.pdf
 	cp $< $@
 
-slides/build/main.pdf: $(shell find slides -name '*.tex') $(shell find img -name '*.png') slides/beamerthemevertex.sty
+slides/build/main.pdf:
 	cd slides && mkdir -p build && \
-	latexmk -halt-on-error -pdflatex=lualatex -pdf -jobname=build/main main.tex
+	lualatex -halt-on-error -jobname=build/main main.tex
 
 snippets:
 	make -f Makefile.snippets
