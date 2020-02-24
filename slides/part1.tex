@@ -202,7 +202,7 @@ int main() {
                 \item \texttt{S s1}: no surprise
                 \item \texttt{S s2(s1)}: no surprise
                 \item \texttt{S s3(S\{\})}: \href{https://en.cppreference.com/w/cpp/language/copy_elision}{\textit{mandatory} copy elision (initializer is prvalue of the same class type})
-                \item \texttt{S s4(std::move(s1)}: forced move construction
+                \item \texttt{S s4(std::move(s1))}: forced move construction
             \end{itemize}
         \end{column}
     \end{columns}
