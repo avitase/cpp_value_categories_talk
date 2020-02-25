@@ -8,6 +8,8 @@ $(PDF): slides/build/main.pdf
 	cp $< $@
 
 slides/build/main.pdf:
+	./make_print_version.py slides/part1.tex && \
+	./make_print_version.py slides/part2.tex && \
 	cd slides && mkdir -p build && \
 	lualatex -halt-on-error -jobname=build/main main.tex
 

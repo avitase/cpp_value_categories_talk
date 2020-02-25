@@ -13,9 +13,6 @@
 \begin{frame}[fragile]{Will it compile?}
     \inputcpplisting{snippet22a}
 
-% REMOVE_FOR_PRINT {
-    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S\&} to an rvalue of type \enquote{S}}%
-% REMOVE_FOR_PRINT }
 \end{frame}
 
 \begin{frame}[fragile]{Will it invoke undefined behavior?}
@@ -289,14 +286,6 @@ BENCHMARK(copy);
     \inputcpplisting{snippet8}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{Implicit conversion to the function return type}
-    \inputcpplisting{snippet8}
-
-    \textbf{\textcolor{vertexDarkRed}{error:}} could not convert \enquote{42} from \enquote{int} to \enquote{B}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Implicit conversion to the function return type}
     \begin{columns}
@@ -325,16 +314,6 @@ BENCHMARK(copy);
     \inputcpplisting{snippet4a}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{ac}, \texttt{acc}, \texttt{acc}}
-    \begin{center}
-        Compiler flags: \texttt{-std=c++14 -fno-elide-constructors}
-    \end{center}
-
-    \inputcpplisting{snippet4a}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \begin{center}
@@ -344,23 +323,10 @@ BENCHMARK(copy);
     \inputcpplisting{snippet4b}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{a}, \texttt{a}, \texttt{a}}
-    \begin{center}
-        Compiler flags: \texttt{-std=c++17}
-    \end{center}
-
-    \inputcpplisting{snippet4b}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[plain,noframenumbering]
     \centering
     \scalebox{5}{\only<1>{Why?}
-% REMOVE_FOR_PRINT {
-        \only<2>{RVO!}
-% REMOVE_FOR_PRINT }
     }
 
     \only<2>{Ben Deane: \enquote{Perhaps the most important optimization the compiler does}}
@@ -628,21 +594,9 @@ g():
     \inputcpplisting{snippet21}
     \begin{itemize}
         \item \texttt{f1}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{RVO}
-% REMOVE_FOR_PRINT }
         \item \texttt{f2}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{\texttt{call S::S(S\&\&)}}
-% REMOVE_FOR_PRINT }
         \item \texttt{f3}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{RVO}
-% REMOVE_FOR_PRINT }
         \item \texttt{f4}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{\texttt{call S::S(const S\&)} (silently revert to a copy!)}
-% REMOVE_FOR_PRINT }
     \end{itemize}
 \end{frame}
 
@@ -650,39 +604,22 @@ g():
     \inputcpplisting{snippet25}
     \begin{itemize}
         \item \texttt{f1}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{No RVO: the object has to be constructed inside the function}
-% REMOVE_FOR_PRINT }
         \item \texttt{f2}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{same as \texttt{f1}}
-% REMOVE_FOR_PRINT }
         \item \texttt{f3}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{same as \texttt{f1}}
-% REMOVE_FOR_PRINT }
     \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
     \inputcpplisting{snippet23}
 
-% REMOVE_FOR_PRINT {
-    \only<2>{No RVO: \texttt{call S::S(S const\&)}}
-% REMOVE_FOR_PRINT }
 \end{frame}
 
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
     \inputcpplisting{snippet26}
     \begin{itemize}
         \item \texttt{f1}: \only<1>{???}
-% REMOVE_FOR_PRINT {
         \only<2>{RVO: type of ternary is prvalue}
-% REMOVE_FOR_PRINT }
         \item \texttt{f2}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{No RVO: type of ternary is lvalue reference}
-% REMOVE_FOR_PRINT }
     \end{itemize}
 
 \end{frame}
@@ -691,21 +628,9 @@ g():
     \inputcpplisting{snippet24}
     \begin{itemize}
         \item \texttt{g1}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{no RVO: \texttt{call S::S(S const\&)}}
-% REMOVE_FOR_PRINT }
         \item \texttt{g2}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{same as \texttt{g1}}
-% REMOVE_FOR_PRINT }
         \item \texttt{g3}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{no RVO: \texttt{call S::S(S\&\&)}}
-% REMOVE_FOR_PRINT }
         \item \texttt{g4}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{same as \texttt{g3}}
-% REMOVE_FOR_PRINT }
     \end{itemize}
 \end{frame}
 
@@ -893,23 +818,11 @@ decltype(auto) visit(auto visitor) {
     \inputcpplisting{snippet16a}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{a}}
-    \inputcpplisting{snippet16a}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet16b}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aa}}
-    \inputcpplisting{snippet16b}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Missing (N)RVO}
     \begin{lstlisting}

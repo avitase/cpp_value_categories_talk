@@ -13,9 +13,6 @@
 \begin{frame}[fragile]{Q: What is the output of the programs?}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
-% REMOVE_FOR_PRINT {
-        \only<2>{A: \texttt{12}}
-% REMOVE_FOR_PRINT }
 
     \begin{lstlisting}[language=python]
 #!/usr/bin/env python3
@@ -34,9 +31,6 @@ if __name__ == '__main__':
     \end{lstlisting}
         \end{column}
         \begin{column}{.45\textwidth}
-% REMOVE_FOR_PRINT {
-            \only<2>{A: \texttt{22}}
-% REMOVE_FOR_PRINT }
 
             \inputcpplisting{snippet28a}
         \end{column}
@@ -47,67 +41,31 @@ if __name__ == '__main__':
     \inputcpplisting{snippet28b}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{21}}
-    \inputcpplisting{snippet28b}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet28c}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aacc22}}
-    \inputcpplisting{snippet28c}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet28d}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aabcc21}}
-    \inputcpplisting{snippet28d}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet28e}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aa12}}
-    \inputcpplisting{snippet28e}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet28f}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aa12}}
-    \inputcpplisting{snippet28f}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet28g}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aa21}}
-    \inputcpplisting{snippet28g}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S*\&} to an rvalue of type \enquote{S*}}
@@ -239,12 +197,6 @@ int main() {
     \inputcpplisting{snippet33b}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{a2a33}}
-    \inputcpplisting{snippet33b}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet33c}
@@ -350,9 +302,6 @@ for (auto _ : state) {
 
 \begin{frame}[fragile]{Rvalue ref. or no rvalue ref.?}
     Rvalue refs are declared using \enquote{\&\&}: reasonable to assume that the presence of \enquote{\&\&} in a type declaration indicates an rvalue reference?
-% REMOVE_FOR_PRINT {
-    \only<2>{\textbf{No!}}
-% REMOVE_FOR_PRINT }
     \begin{columns}
         \begin{column}{.45\textwidth}
             \begin{lstlisting}[numbers=none]
@@ -378,29 +327,11 @@ void f(std::vector<T>&& v); // (6)
             \textbf{Does \enquote{\texttt{\&\&}} mean rvalue reference?}
             \begin{itemize}
                 \item \texttt{(1)}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-                \only<2>{yes}
-% REMOVE_FOR_PRINT }
                 \item \texttt{(2)}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-                \only<2>{no}
-% REMOVE_FOR_PRINT }
                 \item \texttt{(3)}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-                \only<2>{yes}
-% REMOVE_FOR_PRINT }
                 \item \texttt{(4)}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-                \only<2>{no}
-% REMOVE_FOR_PRINT }
                 \item \texttt{(5)}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-                \only<2>{yes}
-% REMOVE_FOR_PRINT }
                 \item \texttt{(6)}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-                \only<2>{yes}
-% REMOVE_FOR_PRINT }
             \end{itemize}
         \end{column}
     \end{columns}
@@ -447,36 +378,16 @@ auto&& s3 = std::move(s2);
     \inputcpplisting{snippet35a}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{abb}}
-    \inputcpplisting{snippet35a}
-
-    \hfill \ldots how to preserve the value category?
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet37}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{aba}}
-    \inputcpplisting{snippet37}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
     \inputcpplisting{snippet38}
 \end{frame}
 
-% REMOVE_FOR_PRINT {
-\addtocounter{framenumber}{-1}
-\begin{frame}[fragile]{A: \texttt{abaa}}
-    \inputcpplisting{snippet38}
-\end{frame}
-% REMOVE_FOR_PRINT }
 
 \begin{frame}[fragile]{Perfect forwarding}
     \centering
@@ -509,9 +420,6 @@ S&& forward(S& t) { // not `S&&`!
 \begin{frame}[fragile]{Q: Why can't we use perfect forwarding here?}
     \inputcpplisting{snippet9}
 
-% REMOVE_FOR_PRINT {
-    \only<2>{\textbf{A:} The first call in the loop might \textit{steal} the values, leading to unexpected behavior calling \texttt{op} in subsequent iterations.}
-% REMOVE_FOR_PRINT }
 \end{frame}
 
 \begin{frame}[plain,noframenumbering]
