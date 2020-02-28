@@ -395,7 +395,7 @@ void f(std::vector<T>&& v); // (6)
 % REMOVE_FOR_PRINT }
                 \item \texttt{(5)}: \only<1>{???}
 % REMOVE_FOR_PRINT {
-                \only<2>{yes}
+                \only<2>{yes${}^{\color{vertexDarkRed}\star}$}
 % REMOVE_FOR_PRINT }
                 \item \texttt{(6)}: \only<1>{???}
 % REMOVE_FOR_PRINT {
@@ -404,12 +404,27 @@ void f(std::vector<T>&& v); // (6)
             \end{itemize}
         \end{column}
     \end{columns}
+
+    \only<2>{\footnotesize ${}^{\color{vertexDarkRed}\star}$ albeit questionable: \texttt{move} changes object in most cases $\not\leftrightarrow$ \texttt{const}}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}[plain,fragile]
+    ${}^{\color{vertexDarkRed}\star}$ albeit questionable: \texttt{move} changes object in most cases $\not\leftrightarrow$ \texttt{const}
+
+    \inputcpplisting{snippet42}
+    
+    \hfill \scalebox{1.5}{\ldots prints \texttt{A}}
+
+    \begin{center}
+        (cf. \href{https://stackoverflow.com/a/28595415}{\texttt{https://stackoverflow.com/a/28595415}})
+    \end{center}
 \end{frame}
 
 \begin{frame}[fragile]{Universal references}
     \begin{columns}
         \begin{column}{.5\textwidth}
-            \textbf{Universal references${}^{\color{vertexDarkRed}\star}$}
+            \textbf{Universal references${}^{\color{vertexDarkRed}\dagger}$}
             \begin{itemize}
                 \item Syntax (\texttt{x} is a universal reference):
                 \begin{itemize}
@@ -440,7 +455,7 @@ auto&& s3 = std::move(s2);
 
     \vspace{5mm}
 
-    \footnotesize ${}^{\color{vertexDarkRed}\star}$ \textit{Universal reference}: term introduced by Scott Meyers
+    \footnotesize ${}^{\color{vertexDarkRed}\dagger}$ \textit{Universal reference}: term introduced by Scott Meyers
 \end{frame}
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
