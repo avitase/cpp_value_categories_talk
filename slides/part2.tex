@@ -189,16 +189,16 @@ BENCHMARK(mv_long_str);
     \textbf{Did they forget to mark the move ctor \texttt{noexcept}?} \only<2>{\textcolor{vertexDarkRed}{No!}}
 
     \begin{columns}[t]
-        \begin{column}{.48\textwidth}
+        \begin{column}{.49\textwidth}
             \begin{lstlisting}[numbers=none]
 // since C++11
 std::map(const std::map&&)
 
 // until C++17
-std::map& operator(std::map&&)
+std::map& operator=(std::map&&)
 
 // since C++17
-std::map& operator(std::map&&) noexcept
+std::map& operator=(std::map&&) noexcept
             \end{lstlisting}
         \end{column}
         \begin{column}{.5\textwidth}

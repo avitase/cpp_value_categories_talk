@@ -4,8 +4,8 @@ struct S {
     S() { std::cout << 'a'; }
     S(const S&) { std::cout << 'b'; }
     S(const S&&) { std::cout << 'c'; }
-    S &operator=(const S&) { std::cout << 'd'; return *this; }
-    S &operator=(const S&&) { std::cout << 'e'; return *this; }
+    S& operator=(const S&) { std::cout << 'd'; return *this; }
+    S& operator=(const S&&) { std::cout << 'e'; return *this; }
 };
 
 S f() { return S{}; }
