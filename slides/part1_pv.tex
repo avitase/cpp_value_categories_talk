@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
-    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S*\&} to an rvalue of type \enquote{S*}}
+    \only<2>{\textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{\texttt{S*\&}} to an rvalue of type \enquote{\texttt{S*}}}
     \inputcpplisting{snippet28h}
 \end{frame}
 
@@ -125,7 +125,7 @@ int main() {
 
 \begin{frame}[fragile]{Binding references to temporaries}
     \begin{center}
-        \textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{S*\&} to an rvalue of type \enquote{S*}
+        \textbf{\textcolor{vertexDarkRed}{error:}} cannot bind non-const lvalue reference of type \enquote{\texttt{S*\&}} to an rvalue of type \enquote{\texttt{S*}}
     \end{center}
     \begin{columns}
         \begin{column}{.4\textwidth}
@@ -335,12 +335,27 @@ void f(std::vector<T>&& v); // (6)
             \end{itemize}
         \end{column}
     \end{columns}
+
+    \only<2>{\footnotesize ${}^{\color{vertexDarkRed}\star}$ albeit questionable: \texttt{move} changes object in most cases $\not\leftrightarrow$ \texttt{const}}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}[plain,fragile]
+    ${}^{\color{vertexDarkRed}\star}$ albeit questionable: \texttt{move} changes object in most cases $\not\leftrightarrow$ \texttt{const}
+
+    \inputcpplisting{snippet42}
+    
+    \hfill \scalebox{1.5}{\ldots prints \texttt{A}}
+
+    \begin{center}
+        (cf. \href{https://stackoverflow.com/a/28595415}{\texttt{https://stackoverflow.com/a/28595415}})
+    \end{center}
 \end{frame}
 
 \begin{frame}[fragile]{Universal references}
     \begin{columns}
         \begin{column}{.5\textwidth}
-            \textbf{Universal references${}^{\color{vertexDarkRed}\star}$}
+            \textbf{Universal references${}^{\color{vertexDarkRed}\dagger}$}
             \begin{itemize}
                 \item Syntax (\texttt{x} is a universal reference):
                 \begin{itemize}
@@ -371,7 +386,7 @@ auto&& s3 = std::move(s2);
 
     \vspace{5mm}
 
-    \footnotesize ${}^{\color{vertexDarkRed}\star}$ \textit{Universal reference}: term introduced by Scott Meyers
+    \footnotesize ${}^{\color{vertexDarkRed}\dagger}$ \textit{Universal reference}: term introduced by Scott Meyers
 \end{frame}
 
 \begin{frame}[fragile]{Q: What is the output of the program?}
@@ -433,7 +448,7 @@ S&& forward(S& t) { // not `S&&`!
 
 \begin{frame}[fragile]{Function Prologue \& Epilogue}
     \begin{itemize}
-        \item Few lines of code at the beginning (\textit{prologue}) and end (\textit{epilogue}) of a function, which \textbf{prepare}
+        \item Few lines of code at the beginning (\textit{prologue}) and end (\textit{epilogue}) of a function, which \textbf{prepares} (and eventually restores)
         \begin{itemize}
             \item the \textbf{stack} and 
             \item \textbf{registers}
@@ -445,8 +460,8 @@ S&& forward(S& t) { // not `S&&`!
         \begin{column}{.45\textwidth}
             \textbf{Prologue}
             \begin{lstlisting}[language={}]
-push rbp
-mov rbp, rsp
+push rbp     ; rbp: frame pointer
+mov rbp, rsp ; rsp: stack pointer
 sub rsp, N
             \end{lstlisting}
             alternatively

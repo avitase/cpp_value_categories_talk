@@ -1,0 +1,14 @@
+\begin{lstlisting}[title=\href{https://godbolt.org/z/3AotWt}{\texttt{godbolt.org/z/3AotWt}}]
+#include <iostream>
+
+struct S {
+    S() {}
+    S(const S&) { std::cout << 'A'; }
+    S(S&&) { std::cout << 'B'; }
+};
+
+int main() {
+    const S s;
+    auto s2 = std::move(s);
+}
+\end{lstlisting}

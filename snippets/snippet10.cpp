@@ -1,7 +1,7 @@
 struct S {
     S() = default;
-    S(const S &) = delete;
-    S &operator=(const S &) = delete;
+    S(const S&) = delete;
+    S& operator=(const S&) = delete;
 };
 
 S f() { return S{}; }

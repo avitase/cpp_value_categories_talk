@@ -1,12 +1,12 @@
-\begin{lstlisting}[title=\href{https://godbolt.org/z/ycZulQ}{\texttt{godbolt.org/z/ycZulQ}}]
+\begin{lstlisting}[title=\href{https://godbolt.org/z/YDnLnE}{\texttt{godbolt.org/z/YDnLnE}}]
 #include <iostream>
 
 struct S {
     S() { std::cout << 'a'; }
     S(const S&) { std::cout << 'b'; }
     S(const S&&) { std::cout << 'c'; }
-    S &operator=(const S&) { std::cout << 'd'; return *this; }
-    S &operator=(const S&&) { std::cout << 'e'; return *this; }
+    S& operator=(const S&) { std::cout << 'd'; return *this; }
+    S& operator=(const S&&) { std::cout << 'e'; return *this; }
 };
 
 S f() { return S{}; }
