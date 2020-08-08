@@ -1,0 +1,14 @@
+3,6c3,6
+<   | get_size(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&): # @get_size(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)
+< 1426|   movzx eax, byte ptr [rdi]
+< 1426|   test al, 1
+< 953|   je .LBB0_1
+---
+>   | get_size(std::string const&):
+> xx|   movzx eax, byte ptr [rdi]
+> xx|   test al, 1
+> xx|   je .LBB0_1
+12c12
+<   | get_size(std::__1::basic_string_view<char, std::__1::char_traits<char> >): # @get_size(std::__1::basic_string_view<char, std::__1::char_traits<char> >)
+---
+>   | get_size(std::string_view):

@@ -725,6 +725,39 @@ ret
     \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet1b}
+
+            \footnotesize
+            \only<1>{\textbf{NB \#1:} adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. (Adjusting \texttt{rsp} can be ommitted in leaf functions.)}
+            \only<2>{\textbf{NB \#2:} Offset \texttt{x} in \texttt{sub rsp, x} is objective of optimizations such as alignment: ABI requires stack to be aligned to 16 bytes.}
+        \end{column}
+        \begin{column}{.45\textwidth}
+            \inputasmlisting{snippet2b}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
+    \begin{columns}[t]
+        \begin{column}{.45\textwidth}
+            \inputcpplisting{snippet43a}
+        \end{column}
+        \begin{column}{.5\textwidth}
+            \inputasmlisting{snippet43a}
+        \end{column}
+    \end{columns}
+    \only<1>{%
+    Even though we \textit{only} pass a reference, we pay the cost of the complex object \texttt{std::string} (i.e., first bit is tested for short string optimization)
+
+    \begin{center}
+        \scalebox{1.2}{$\hookrightarrow$ prefer views such as \texttt{std::string\_view} or \texttt{std::span}}
+    \end{center}}
+    \only<2>{${}^{\color{vertexDarkRed}\star}$Confession: switching to \texttt{libstdc++} resolves this issue here}
+\end{frame}
+
 \begin{frame}[fragile]{Will it compile?}
     \begin{columns}
         \begin{column}{.45\textwidth}
