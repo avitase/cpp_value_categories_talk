@@ -14,6 +14,9 @@ venv/bin/activate: requirements.txt
 
 snippets/snippet%_cpplst.tex: snippets/snippet%.cfg $(CPP) venv convert.py
 	. venv/bin/activate; python convert.py $<
+	if [ -f "snippets/snippet$*_asmlst.tex.patch" ]; then \
+		patch -b snippets/snippet$*_asmlst.tex -i snippets/snippet$*_asmlst.tex.patch; \
+	fi
 
 clean:
 	rm -rf venv
