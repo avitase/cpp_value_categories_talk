@@ -408,8 +408,7 @@ void f(std::vector<T>&& v); // (6)
     \only<2>{\footnotesize ${}^{\color{vertexDarkRed}\star}$ albeit questionable: \texttt{move} changes object in most cases $\not\leftrightarrow$ \texttt{const}}
 \end{frame}
 
-\addtocounter{framenumber}{-1}
-\begin{frame}[plain,fragile]
+\begin{frame}[fragile]{\texttt{std::move} and \texttt{const}}
     ${}^{\color{vertexDarkRed}\star}$ albeit questionable: \texttt{move} changes object in most cases $\not\leftrightarrow$ \texttt{const}
 
     \inputcpplisting{snippet42}
@@ -449,7 +448,13 @@ auto&& s3 = s2;  // S&&&  -> S&
 
 // S&&&& -> S&&
 auto&& s3 = std::move(s2);
+
+/* Exception */
+S s4{};
+auto&& s5 = s4; // S&& -> S&
             \end{lstlisting}
+
+            \textbf{Universal reference are always references!}
         \end{column}
     \end{columns}
 
@@ -498,14 +503,14 @@ auto&& s3 = std::move(s2);
     \scalebox{1.5}{How do we fuse these implementations?}
 
     \begin{lstlisting}
-// if `t` is an lvalue of type `S`
-S& forward(S& t) {
+// if `t` is an lvalue of type `T`
+template <typename T> T& forward(T& t) {
     return t;
 }
 
-// if `t` is an rvalue of type `S`
-S&& forward(S& t) { // not `S&&`!
-    return std::move(t); // static_cast<S&&>(t)
+// if `t` is an rvalue of type `T`
+template <typename T> T&& forward(T& t) {
+    return std::move(t); // static_cast<T&&>(t)
 }
     \end{lstlisting}
 
@@ -686,9 +691,9 @@ ret
 \end{frame}
 
 
-\section{Implicit Costs of \texttt{const\&}}
+\section{Implicit costs of \texttt{const\&}}
 
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
+\begin{frame}[fragile]{Implicit costs of using \texttt{const\&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputcpplisting{snippet1a}
@@ -699,7 +704,7 @@ ret
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
+\begin{frame}[fragile]{Implicit costs of using \texttt{const\&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputasmlisting{snippet1a}
@@ -710,7 +715,7 @@ ret
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
+\begin{frame}[fragile]{Implicit costs of using \texttt{const\&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputasmlisting{snippet1b}
@@ -725,22 +730,7 @@ ret
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
-    \begin{columns}[t]
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet1b}
-
-            \footnotesize
-            \only<1>{\textbf{NB \#1:} adjusting \texttt{rsp} in function prologue necessary when function is not a leaf function since callee have to know where to start saving variables on stack. (Adjusting \texttt{rsp} can be ommitted in leaf functions.)}
-            \only<2>{\textbf{NB \#2:} Offset \texttt{x} in \texttt{sub rsp, x} is objective of optimizations such as alignment: ABI requires stack to be aligned to 16 bytes.}
-        \end{column}
-        \begin{column}{.45\textwidth}
-            \inputasmlisting{snippet2b}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Implicit Costs of using \texttt{const\&}}
+\begin{frame}[fragile]{Implicit costs of using \texttt{const\&}}
     \begin{columns}[t]
         \begin{column}{.45\textwidth}
             \inputcpplisting{snippet43a}
@@ -777,8 +767,8 @@ ret
     \vspace{1cm}
 
     \begin{lstlisting}
-template <std::size_t N>
-constexpr span(const std::array<value_type, N>& arr) noexcept;
+template <typename T, std::size_t N>
+constexpr span(const std::array<T, N>& arr) noexcept;
     \end{lstlisting}
     \href{https://en.cppreference.com/w/cpp/container/span/span}{\texttt{cppreference.com/w/cpp/container/span/span}}
 \end{frame}
