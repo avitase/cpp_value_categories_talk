@@ -219,7 +219,7 @@ std::map& operator=(std::map&&) noexcept
 
 \begin{frame}[fragile]{Moving \texttt{std::map}}
     \begin{lstlisting}
-static void rvo(benchmark::State& state) {
+static void no_move(benchmark::State& state) {
     for (auto _ : state) {
         auto m = []() -> std::map<int, int> {
             std::map<int, int> m{{0, 42}};
@@ -228,11 +228,11 @@ static void rvo(benchmark::State& state) {
         benchmark::DoNotOptimize(m);
     }
 }
-BENCHMARK(rvo);
+BENCHMARK(no_move);
     \end{lstlisting}
 
     \begin{lstlisting}
-static void fmove(benchmark::State& state) {
+static void force_move(benchmark::State& state) {
     for (auto _ : state) {
         auto m = []() -> std::map<int, int> {
             std::map<int, int> m{{0, 42}};
@@ -241,7 +241,7 @@ static void fmove(benchmark::State& state) {
         benchmark::DoNotOptimize(m);
     }
 }
-BENCHMARK(fmove);
+BENCHMARK(force_move);
     \end{lstlisting}
 \end{frame}
 \begin{frame}[fragile]{Moving \texttt{std::map}}
@@ -646,23 +646,23 @@ g():
     \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{(N)RVO or no (N)RVO?}
-    \inputcpplisting{snippet25}
-    \begin{itemize}
-        \item \texttt{f1}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{No RVO: the object has to be constructed inside the function}
-% REMOVE_FOR_PRINT }
-        \item \texttt{f2}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{same as \texttt{f1}}
-% REMOVE_FOR_PRINT }
-        \item \texttt{f3}: \only<1>{???}
-% REMOVE_FOR_PRINT {
-        \only<2>{same as \texttt{f1}}
-% REMOVE_FOR_PRINT }
-    \end{itemize}
-\end{frame}
+%\begin{frame}[fragile]{(N)RVO or no (N)RVO for function argument?}
+%    \inputcpplisting{snippet25}
+%    \begin{itemize}
+%        \item \texttt{f1}: \only<1>{???}
+%% REMOVE_FOR_PRINT {
+%        \only<2>{No RVO: the object has to be constructed inside the function}
+%% REMOVE_FOR_PRINT }
+%        \item \texttt{f2}: \only<1>{???}
+%% REMOVE_FOR_PRINT {
+%        \only<2>{same as \texttt{f1}}
+%% REMOVE_FOR_PRINT }
+%        \item \texttt{f3}: \only<1>{???}
+%% REMOVE_FOR_PRINT {
+%        \only<2>{same as \texttt{f1}}
+%% REMOVE_FOR_PRINT }
+%    \end{itemize}
+%\end{frame}
 
 \begin{frame}[fragile]{(N)RVO or no (N)RVO?}
     \inputcpplisting{snippet23}
